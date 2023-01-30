@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "src/headers/Shader.h"
 
 #define BACKGROUND_COLOR_R 0.2f
 #define BACKGROUND_COLOR_G 0.3f
@@ -74,6 +75,10 @@ int init(){
 
 
     glEnable(GL_DEPTH_TEST);
+
+    Shader_id shader = loadShader("src/shaders/basic.frag"," src/shaders/basic.vertex");
+
+
     return true;
 }
 
