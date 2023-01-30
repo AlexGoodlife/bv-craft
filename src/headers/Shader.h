@@ -8,11 +8,11 @@
 
 typedef GLuint Shader_id;
 
-Shader_id loadShader(const char* vertexPath, const char* fragPath);
+Shader_id shader_load(const char* vertexPath, const char* fragPath);
 
-inline void destroyShader(Shader_id id);
+void shader_destroy(Shader_id id);
 
-inline void useShader(Shader_id id);
+void shader_use(Shader_id id);
 
 #endif
 

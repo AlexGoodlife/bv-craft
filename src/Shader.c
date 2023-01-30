@@ -1,6 +1,5 @@
 #include "headers/Shader.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -12,7 +11,7 @@ char* readFromFile(FILE *f);
 void checkCompileErrors(GLuint shader, const char* type);
 
 
-Shader_id loadShader(const char* vertexPath, const char* fragPath){
+Shader_id shader_load(const char* vertexPath, const char* fragPath){
 
     Shader_id ID;
 
@@ -37,13 +36,13 @@ Shader_id loadShader(const char* vertexPath, const char* fragPath){
     //VERTEX SHADER
     vertex = glCreateShader(GL_VERTEX_SHADER);
 
-    glShaderSource(vertex, 1, &vertexString, NULL);
+    glShaderSource(vertex, 1, (const char**)&(vertexString), NULL);
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
 
     //FRAGMENT SHADER
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fragString, NULL);
+    glShaderSource(fragment, 1, (const char**)&fragString, NULL);
     glCompileShader(fragment);
     checkCompileErrors(vertex, "FRAGMENT");
 
@@ -65,7 +64,7 @@ Shader_id loadShader(const char* vertexPath, const char* fragPath){
 
 }
 
-inline void destroyShader(Shader_id id){
+void shader_destroy(Shader_id id){
     glDeleteProgram(id);
 }
 
@@ -92,7 +91,7 @@ char* readFromFile(FILE *f){
     return result;
 }
 
-inline void useShader(Shader_id id){
+void shader_use(Shader_id id){
     glUseProgram(id);
 }
 

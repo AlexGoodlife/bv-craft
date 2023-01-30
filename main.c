@@ -19,6 +19,7 @@ void processInput();
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void displayFPS();
 
 GLFWwindow* window;
 
@@ -26,14 +27,62 @@ const char* windowTitle = "Testing";
 const int windowWidth = 800;
 const int windowHeight = 600;
 
+Shader_id shader;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+uint32_t nbFrames = 0;
 
 void run(){
 
-    while(!glfwWindowShouldClose(window)){
-        processInput();
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left 
+    };
 
+    uint32_t indices[] = {
+        0,1,3,
+        1,2,3
+    };
+
+    GLuint VAO, VBO, EBO;
+
+    glGenVertexArrays(1,&VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
+
+
+    while(!glfwWindowShouldClose(window)){
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        displayFPS();
+        processInput();
         glClearColor(BACKGROUND_COLOR_4C);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        shader_use(shader);
+        glBindVertexArray(VAO);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
         glfwSwapBuffers(window);
@@ -41,6 +90,9 @@ void run(){
 
     }
 
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    shader_destroy(shader);
     glfwTerminate();
 }
 
@@ -76,8 +128,13 @@ int init(){
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader_id shader = loadShader("src/shaders/basic.frag"," src/shaders/basic.vertex");
-
+    shader = shader_load("src/shaders/basic.vertex","src/shaders/basic.frag");
+    if (errno)
+    {
+        ERROR("FAILED TO LOAD FILE");
+        return false;
+    }
+    
 
     return true;
 }
@@ -89,6 +146,25 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 void processInput(){
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+double waitTime;
+void displayFPS(){
+     
+    nbFrames++;
+
+    if(lastFrame - waitTime >= 1.0){
+        double fps = (double)nbFrames;
+        char buff[254];
+
+        sprintf(buff, "%s [%lf FPS]", windowTitle, fps);
+
+        glfwSetWindowTitle(window,buff);
+
+        nbFrames = 0;
+        waitTime = lastFrame;
+    }
+
 }
 
 
