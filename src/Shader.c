@@ -6,57 +6,62 @@
 
 #define MAX_BUFFER_SIZE 1024
 
-char *concact_strings(const char*s1, const char*s2){
-    uint32_t firstSize = strlen(s1);
-    uint32_t secondSize = strlen(s2);
-    char* result = malloc(sizeof(char) * (firstSize + secondSize) + 1);
-    strcat(result, s1);
-    strcat(result,s2);
-    return result;
-}
+
+char* readFromFile(FILE *f);
+
+void checkCompileErrors(GLuint shader, const char* type);
 
 
 Shader_id loadShader(const char* vertexPath, const char* fragPath){
+
+    Shader_id ID;
+
     errno = 0;
-    FILE* vertexFile = fopen(vertexPath,"r");
-    FILE* fragFile = fopen(fragPath, "r");
+    FILE* vertexFile = fopen(vertexPath,"rb");
+    FILE* fragFile = fopen(fragPath, "rb");
     if(!vertexFile){
-        ERROR("Failed to open file %s, ERRNO: %s", vertexPath, strerror(errno));
+        ERROR("Failed to open file %s", vertexPath);
     }
     if(!fragFile){
-        ERROR("Failed to open file %s ERRNO: %s", fragPath, strerror(errno));
+        ERROR("Failed to open file %s", fragPath);
     }
 
-
-
-    char buffer[MAX_BUFFER_SIZE];
-    
-    char* vertexString  = malloc(sizeof(char) * 1);
-    vertexString[0] = '\0';
-    char* fragString  = malloc(sizeof(char) * 1);
-    fragString[0] = '\0';
-
-
-    while(fscanf(vertexFile,"%s", buffer) != EOF){
-        char* concat  = concact_strings(vertexString, buffer);
-        free(vertexString);
-        vertexString = concat;
-    }
-
-    while(fscanf(fragFile,"%s", buffer) != EOF){
-        char* concat  = concact_strings(fragString, buffer);
-        free(fragString);
-        fragString = concat;
-    }
-
-    printf("%s\n", vertexString);
-    free(vertexString);
-    free(fragString);
+    char* vertexString = readFromFile(vertexFile);
+    char* fragString = readFromFile(fragFile);
 
     fclose(vertexFile);
     fclose(fragFile);
 
-    return 0;
+    GLuint vertex, fragment;
+
+    //VERTEX SHADER
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+
+    glShaderSource(vertex, 1, &vertexString, NULL);
+    glCompileShader(vertex);
+    checkCompileErrors(vertex, "VERTEX");
+
+    //FRAGMENT SHADER
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fragString, NULL);
+    glCompileShader(fragment);
+    checkCompileErrors(vertex, "FRAGMENT");
+
+    // PROGRAM SHADER
+    ID = glCreateProgram();
+    glAttachShader(ID, vertex);
+    glAttachShader(ID, fragment);
+    glLinkProgram(ID);
+
+    checkCompileErrors(ID, "PROGRAM");
+
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+
+    free(vertexString);
+    free(fragString);
+ 
+    return ID;
 
 }
 
@@ -64,6 +69,54 @@ inline void destroyShader(Shader_id id){
     glDeleteProgram(id);
 }
 
+
+char* readFromFile(FILE *f){
+    fseek(f, 0, SEEK_END);
+    long length = ftell(f);
+    rewind(f);
+    if (length == -1 || (unsigned long) length >= SIZE_MAX) {
+        printf("hey\n");
+        // return NULL;
+    }
+
+    // Convert from long to size_t
+    size_t ulength = (size_t) length;
+    char *result = malloc(ulength + 1);
+    // Allocation failed? Read incomplete?
+    if (result == NULL || fread(result, 1, ulength, f) != ulength) {
+        free(result);
+        printf("hey\n");
+        // return NULL;
+    }
+    result[ulength] = '\0'; // Now buffer points to a string
+    return result;
+}
+
 inline void useShader(Shader_id id){
     glUseProgram(id);
+}
+
+
+void checkCompileErrors(GLuint shader, const char* type)
+{
+    int success;
+    char infoLog[1024];
+    if (strcmp(type, "PROGRAM") != 0)
+    {
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type:%s\n %s\n", type, infoLog);
+        }
+    }
+    else
+    {
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+            fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type:%s\n %s\n", type, infoLog);
+        }
+    }
 }
