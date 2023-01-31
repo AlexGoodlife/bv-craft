@@ -1,9 +1,10 @@
-#include "headers/Shader.h"
+#include "Shader.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 
 #define MAX_BUFFER_SIZE 1024
+
 
 
 char* readFromFile(FILE *f);
@@ -63,6 +64,35 @@ Shader_id shader_load(const char* vertexPath, const char* fragPath){
     return ID;
 
 }
+
+void shader_setBool(Shader_id ID, const char* name, bool value){
+    glUniform1i(glGetUniformLocation(ID, name), (int)value); 
+}
+void shader_setInt(Shader_id ID, const char* name, int value){
+    glUniform1i(glGetUniformLocation(ID, name),value); 
+}
+void shader_setFloat(Shader_id ID, const char* name, float value){
+    glUniform1f(glGetUniformLocation(ID, name),value); 
+}
+void shader_setVec2(Shader_id ID, const char* name, vec2_s* v){
+    glUniform1i(glGetUniformLocation(ID, name), &(v->x)); 
+}
+void shader_setVec3(Shader_id ID, const char* name, vec3_s*v){
+    glUniform1i(glGetUniformLocation(ID, name),&(v->x)); 
+}
+void shader_setVec4(Shader_id ID, const char* name, vec4_s*v){
+    glUniform1i(glGetUniformLocation(ID, name),&(v->x)); 
+}
+void shader_setMat2(Shader_id ID, const char* name, mat2_s*m){
+    glUniform1i(glGetUniformLocation(ID, name),&(m->m[0][0])); 
+}
+void shader_setMat3(Shader_id ID, const char* name, mat3_s*m){
+    glUniform1i(glGetUniformLocation(ID, name),&(m->m[0][0])); 
+}
+void shader_setMat4(Shader_id ID, const char* name, mat4_s*m){
+    glUniform1i(glGetUniformLocation(ID, name),&(m->m[0][0])); 
+}
+
 
 void shader_destroy(Shader_id id){
     glDeleteProgram(id);
