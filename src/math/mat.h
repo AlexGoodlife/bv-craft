@@ -19,9 +19,9 @@ typedef struct mat4_s
     float m[4][4];
 }mat4_s;
 
-#define init_mat2_id {.m = {{1,0},{0,1}}}
-#define init_mat3_id {.m = {{1,0,0},{0,1,0},{0,0,1}}}
-#define init_mat4_id {.m ={{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}}
+#define init_mat2_id (mat2_s){.m = {{1,0},{0,1}}}
+#define init_mat3_id (mat3_s){.m = {{1,0,0},{0,1,0},{0,0,1}}}
+#define init_mat4_id (mat4_s){.m ={{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}}
 
 #define init_mat2_zero {.m = {{0,0},{0,0}}}
 #define init_mat3_zero {.m = {{0,0,0},{0,0,0},{0,0,0}}}
@@ -65,13 +65,13 @@ static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
 
     mat4_s result = init_mat4_zero;
     
-    // mat<4, 4, T, Q> result;
     for(int i = 0; i < 4;i++){
         result.m[0][i] = base.m[0][i] * rotate.m[0][0] + base.m[1][i] * rotate.m[0][1] + base.m[2][i] * rotate.m[0][2];
         result.m[1][i] = base.m[0][i] * rotate.m[1][0] + base.m[1][i] * rotate.m[1][1] + base.m[2][i] * rotate.m[1][2];
         result.m[2][i] = base.m[0][i] * rotate.m[2][0] + base.m[1][i] * rotate.m[2][1] + base.m[2][i] * rotate.m[2][2];
         result.m[3][i] = base.m[3][i];
     }
+    return result;
     // result.m[0] = base.m[0] * rotate.m[0][0] + base.m[1] * rotate.m[0][1] + base.m[2] * rotate.m[0][2];
     // result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
     // result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
@@ -82,6 +82,15 @@ static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
 	// 	Result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
 	// 	Result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
 	// 	Result[3] = m[3];
+}
+
+
+static inline mat4_s linealg_translate(mat4_s base, vec3_s* v){
+    mat4_s result = init_mat4_zero;
+    for(int i = 0; i < 4;i++){
+        result.m[3][i] = base.m[0][i] * v->x + base.m[1][i] * v->y + base.m[2][i] * v->z + base.m[3][i];
+    }
+	return result;
 }
 
 

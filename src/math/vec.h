@@ -15,9 +15,9 @@ typedef struct{
     float x, y,z,w;
 }vec4_s;
 
-#define vec2(x_,y_) {.x = x_, .y = y_}
-#define vec3(x_,y_,z_) {.x = x_, .y = y_, .z = z_}
-#define vec4(x_,y_,z_,w_) {.x = x_, .y = y_,.z = z_,.w = w_}
+#define vec2(x_,y_) (vec2_s){.x = x_, .y = y_}
+#define vec3(x_,y_,z_) (vec3_s){.x = x_, .y = y_, .z = z_}
+#define vec4(x_,y_,z_,w_) (vec4_s){.x = x_, .y = y_,.z = z_,.w = w_}
 
 #define vec_dot(v,u) _Generic((v), vec2_s*: vec2_dot, vec3_s*: vec3_dot, vec4_s*: vec4_dot)(v,u)
 #define vec_normalize(v) _Generic((v), vec2_s*: vec2_normalize, vec3_s*: vec3_normalize, vec4_s*: vec4_normalize)(v)

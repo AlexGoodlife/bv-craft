@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "src/headers/Shader.h"
+#include "src/Shader.h"
+#include "src/math/linealg.h"
 
 #define BACKGROUND_COLOR_R 0.2f
 #define BACKGROUND_COLOR_G 0.3f
@@ -33,18 +34,76 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 uint32_t nbFrames = 0;
 
+
 void run(){
 
+    // float vertices[] = {
+    //     //FRONT FACE
+    //      0.5f,  0.5f, 0.0f,  // top right
+    //      0.5f, -0.5f, 0.0f,  // bottom right
+    //     -0.5f, -0.5f, 0.0f,  // bottom left
+    //     -0.5f,  0.5f, 0.0f,   // top left
+
+    //     //BACK FACE
+    //     //  0.5f,  0.5f, 0.5f,  // top right
+    //     //  0.5f, -0.5f, 0.5f,  // bottom right
+    //     // -0.5f, -0.5f, 0.5f,  // bottom left
+    //     // -0.5f,  0.5f, 0.5f,   // top left 
+    // };
+
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f, 
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+        -0.5f,  0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,  
+
+        -0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f, 
+
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f, 
+         0.5f,  0.5f,  0.5f, 
+
+        -0.5f, -0.5f, -0.5f, 
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+
+        -0.5f,  0.5f, -0.5f, 
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f, 
     };
 
     uint32_t indices[] = {
-        0,1,3,
-        1,2,3
+        0,1,3, // FRONT1
+        1,2,3, // FRONT2
+
+        // 4,5,7, // BACK1
+        // 5,6,7, // BACK2
+
+        // 5,6,0 // RIGHT2    
+
     };
 
     GLuint VAO, VBO, EBO;
@@ -68,7 +127,6 @@ void run(){
 
 
 
-
     while(!glfwWindowShouldClose(window)){
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -80,9 +138,26 @@ void run(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader_use(shader);
+
+        // glm::mat4 view          = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        // glm::mat4 projection    = glm::mat4(1.0f);
+        mat4_s view = init_mat4_id;
+        mat4_s projection = init_mat4_id;
+        projection = linealg_perspective(windowWidth/windowHeight,radians(45.0f), 0.1f, 100.0f);
+        view = linealg_translate(view, &vec3(0.0f,0.0f,-3.0f));
+        // projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        // pass transformation matrices to the shader
+        shader_setMat4(shader,"projection", &projection);
+        shader_setMat4(shader,"view", &projection);
+        // ourShader.setMat4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+        // ourShader.setMat4("view", view);
+
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
         glfwSwapBuffers(window);
@@ -92,6 +167,7 @@ void run(){
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     shader_destroy(shader);
     glfwTerminate();
 }
