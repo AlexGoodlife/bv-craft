@@ -90,7 +90,8 @@ void shader_setMat3(Shader_id ID, const char* name, mat3_s*m){
     glUniformMatrix3fv(glGetUniformLocation(ID, name),1,GL_FALSE,&(m->m[0][0])); 
 }
 void shader_setMat4(Shader_id ID, const char* name, mat4_s*m){
-    glUniformMatrix4fv(glGetUniformLocation(ID, name),1,GL_FALSE,&(m->m[0][0])); 
+    // glUniformMatrix4fv(glGetUniformLocation(ID, name),1,GL_FALSE,(const GLfloat*)(&m->m)); 
+     glUniformMatrix4fv(glGetUniformLocation(ID, name),1,GL_FALSE,&(m->m[0][0])); 
 }
 
 

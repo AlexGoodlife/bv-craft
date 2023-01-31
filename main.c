@@ -126,7 +126,6 @@ void run(){
     glEnableVertexAttribArray(0);
 
 
-
     while(!glfwWindowShouldClose(window)){
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -143,19 +142,21 @@ void run(){
         // glm::mat4 projection    = glm::mat4(1.0f);
         mat4_s view = init_mat4_id;
         mat4_s projection = init_mat4_id;
-        projection = linealg_perspective(windowWidth/windowHeight,radians(45.0f), 0.1f, 100.0f);
-        view = linealg_translate(view, &vec3(0.0f,0.0f,-3.0f));
+        mat4_s model = init_mat4_id;
+        model = linealg_rotate(model, glfwGetTime(), &vec3(1.0f,1.0f,0.0f));
+        projection = linealg_perspective((float)windowWidth/(float)windowHeight,radians(45.0f), 0.1f, 100.0f);
+        view = linealg_translate(view, &vec3(0.0f,0.0f,6.0f));
+
         // projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         // view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         // pass transformation matrices to the shader
         shader_setMat4(shader,"projection", &projection);
-        shader_setMat4(shader,"view", &projection);
+        shader_setMat4(shader,"model", &model);
+        shader_setMat4(shader,"view", &view);
         // ourShader.setMat4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
         // ourShader.setMat4("view", view);
 
         glBindVertexArray(VAO);
-
-
         glDrawArrays(GL_TRIANGLES, 0, 36);
         //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

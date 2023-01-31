@@ -2,6 +2,7 @@
 #define BV_MAT_H
 
 #include <math.h>
+#include <string.h> // mmcpy
 #include "vec.h"
 
 typedef struct mat2_s
@@ -27,12 +28,19 @@ typedef struct mat4_s
 #define init_mat3_zero {.m = {{0,0,0},{0,0,0},{0,0,0}}}
 #define init_mat4_zero {.m ={{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}}
 
+static inline mat4_s linealg_mat4cpy(mat4_s base){
+    mat4_s result;
+    for(int i = 0; i < 4;i++)
+        memcpy(result.m[i], base.m[i],sizeof(float) * 4);
+    return result;
+}
+
 static inline mat4_s linealg_perspective(float aspectRatio, float fov, float near, float far){
     mat4_s result = init_mat4_zero;
     float fov_calc = (1/tan(fov/2));
     float plane_calc = far/(far - near);
 
-    result.m[0][1] = aspectRatio * fov_calc; 
+    result.m[0][0] = aspectRatio * fov_calc; 
     result.m[1][1] = fov_calc;
     result.m[2][2] = plane_calc;
     result.m[3][2] = plane_calc * (-near);
@@ -72,21 +80,12 @@ static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
         result.m[3][i] = base.m[3][i];
     }
     return result;
-    // result.m[0] = base.m[0] * rotate.m[0][0] + base.m[1] * rotate.m[0][1] + base.m[2] * rotate.m[0][2];
-    // result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
-    // result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
-    // result[3] = m[3];
-    // return result;
 
-    // Result[0] = m[0] * Rotate[0][0] + m[1] * Rotate[0][1] + m[2] * Rotate[0][2];
-	// 	Result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
-	// 	Result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
-	// 	Result[3] = m[3];
 }
 
 
 static inline mat4_s linealg_translate(mat4_s base, vec3_s* v){
-    mat4_s result = init_mat4_zero;
+    mat4_s result = linealg_mat4cpy(base);
     for(int i = 0; i < 4;i++){
         result.m[3][i] = base.m[0][i] * v->x + base.m[1][i] * v->y + base.m[2][i] * v->z + base.m[3][i];
     }
