@@ -5,6 +5,8 @@
 #include <string.h> // mmcpy
 #include "vec.h"
 
+#include <stdio.h>
+
 typedef struct mat2_s
 {
     float m[2][2];
@@ -27,6 +29,10 @@ typedef struct mat4_s
 #define init_mat2_zero {.m = {{0,0},{0,0}}}
 #define init_mat3_zero {.m = {{0,0,0},{0,0,0},{0,0,0}}}
 #define init_mat4_zero {.m ={{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}}
+
+
+#define mat4_debug_print(mat) do{for(int i = 0; i < 4;i++){printf("[ ");for(int j = 0; j < 4;j++){printf("%f ", mat.m[i][j]);}printf("]\n");}}while(0)
+
 
 static inline mat4_s linealg_mat4cpy(mat4_s base){
     mat4_s result;
@@ -83,13 +89,40 @@ static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
 
 }
 
-
 static inline mat4_s linealg_translate(mat4_s base, vec3_s* v){
     mat4_s result = linealg_mat4cpy(base);
     for(int i = 0; i < 4;i++){
         result.m[3][i] = base.m[0][i] * v->x + base.m[1][i] * v->y + base.m[2][i] * v->z + base.m[3][i];
     }
 	return result;
+}
+
+static inline mat4_s linealg_lookat(vec3_s* eye, vec3_s* center, vec3_s* up){
+    vec3_s forward = vec3_sub(center,eye);
+    forward = vec3_normalize(&forward);
+
+    printf("%f %f %f\n", forward.x,forward.y,forward.z);
+
+    vec3_s right = vec3_cross(&forward, up);
+
+
+    right = vec3_normalize(&right);
+
+    vec3_s newUp = vec3_cross(&right, &forward);
+
+    mat4_s result = init_mat4_id;
+
+    result.m[0][0] = right.x; result.m[1][0] = right.y; result.m[2][0] =  right.z;
+
+    result.m[0][1] = newUp.x; result.m[1][1] = newUp.y; result.m[2][1] = newUp.z;
+
+    result.m[0][2] = forward.x; result.m[1][2] = forward.y; result.m[2][2] = forward.z;
+
+    result.m[3][0] = -vec3_dot(&right, eye);
+    result.m[3][1] = -vec3_dot(&newUp, eye);
+    result.m[3][2] = -vec3_dot(&forward, eye);
+
+    return result;
 }
 
 
