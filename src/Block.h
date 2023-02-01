@@ -4,6 +4,7 @@
 #include "math/vec.h"
 #include "stdint.h"
 #include "string.h" // memcpy
+#include "stdio.h"
 
 #define N_FACES 6
 #define VERTEXES_PER_FACE 4

@@ -41,13 +41,14 @@ static inline mat4_s linealg_mat4cpy(mat4_s base){
     return result;
 }
 
+
 static inline mat4_s linealg_perspective(float aspectRatio, float fov, float near, float far){
     mat4_s result = init_mat4_zero;
-    float fov_calc = (1/tan(fov/2));
+    float fov_calc = tan(fov/2);
     float plane_calc = far/(far - near);
 
-    result.m[0][0] = aspectRatio * fov_calc; 
-    result.m[1][1] = fov_calc;
+    result.m[0][0] = 1/(aspectRatio * fov_calc); 
+    result.m[1][1] = 1/fov_calc;
     result.m[2][2] = plane_calc;
     result.m[3][2] = plane_calc * (-near);
     result.m[2][3] = 1;

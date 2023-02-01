@@ -62,66 +62,100 @@ void run(){
     //     // -0.5f,  0.5f, 0.5f,   // top left 
     // };
 
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f,  
+    // float vertices[] = {
+    //     -0.5f, -0.5f, -0.5f,
+    //      0.5f, -0.5f, -0.5f, 
+    //      0.5f,  0.5f, -0.5f,  
+    //      0.5f,  0.5f, -0.5f,  
+    //     -0.5f,  0.5f, -0.5f, 
+    //     -0.5f, -0.5f, -0.5f,  
 
-        -0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f,  
+    //     -0.5f, -0.5f,  0.5f,  
+    //      0.5f, -0.5f,  0.5f,  
+    //      0.5f,  0.5f,  0.5f,  
+    //      0.5f,  0.5f,  0.5f,  
+    //     -0.5f,  0.5f,  0.5f,  
+    //     -0.5f, -0.5f,  0.5f,  
 
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f, -0.5f,  
-        -0.5f, -0.5f, -0.5f,  
-        -0.5f, -0.5f, -0.5f,  
-        -0.5f, -0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
+    //     -0.5f,  0.5f,  0.5f,  
+    //     -0.5f,  0.5f, -0.5f,  
+    //     -0.5f, -0.5f, -0.5f,  
+    //     -0.5f, -0.5f, -0.5f,  
+    //     -0.5f, -0.5f,  0.5f,  
+    //     -0.5f,  0.5f,  0.5f, 
 
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f, 
-         0.5f,  0.5f,  0.5f, 
+    //      0.5f,  0.5f,  0.5f,  
+    //      0.5f,  0.5f, -0.5f,  
+    //      0.5f, -0.5f, -0.5f,  
+    //      0.5f, -0.5f, -0.5f,  
+    //      0.5f, -0.5f,  0.5f, 
+    //      0.5f,  0.5f,  0.5f, 
 
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f, -0.5f,  
+    //     -0.5f, -0.5f, -0.5f, 
+    //      0.5f, -0.5f, -0.5f,  
+    //      0.5f, -0.5f,  0.5f,  
+    //      0.5f, -0.5f,  0.5f, 
+    //     -0.5f, -0.5f,  0.5f,  
+    //     -0.5f, -0.5f, -0.5f,  
 
-        -0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-    };
+    //     -0.5f,  0.5f, -0.5f, 
+    //      0.5f,  0.5f, -0.5f,  
+    //      0.5f,  0.5f,  0.5f,  
+    //      0.5f,  0.5f,  0.5f, 
+    //     -0.5f,  0.5f,  0.5f,  
+    //     -0.5f,  0.5f, -0.5f, 
+    // };
 
     // for(int i = 1; i < 108;i+=3){
     //     vertices[i] += 2.0f;
     // }
 
-    uint32_t indices[] = {
-        0,1,3, // FRONT1
-        1,2,3, // FRONT2
+    // uint32_t indices[] = {
+    //     0,1,3, // FRONT1
+    //     1,2,3, // FRONT2
 
-        // 4,5,7, // BACK1
-        // 5,6,7, // BACK2
+    //     // 4,5,7, // BACK1
+    //     // 5,6,7, // BACK2
 
-        // 5,6,0 // RIGHT2    
+    //     // 5,6,0 // RIGHT2    
 
-    };
+    // };
+
+
+    BlockMesh block = blockmesh_build();
 
     GLuint VAO, VBO, EBO;
+
+    float vertices[N_FACES * VERTEXES_PER_FACE * 3*2];
+    uint32_t indices[FACE_INDICES_COUNT * N_FACES*2];
+
+    for(int i = 0; i < FaceOrder_End;i++){
+        memcpy(vertices + (i*3 * VERTEXES_PER_FACE), block.faces[i].vertexData, sizeof(float) * 3 * VERTEXES_PER_FACE);
+        memcpy(indices + (i*6), block.faces[i].indicesData, sizeof(uint32_t) * 6);
+    }
+    for(int i = 0; i < FaceOrder_End;i++){
+        for(int j = 0; j < 4;j++){
+            block.faces[i].vertexData[j] = vec3_add(&block.faces[i].vertexData[j], &vec3(2.0f,0.0f,0.0f));
+        }
+        for(int k = 0; k < 6;k++){
+            block.faces[i].indicesData[k] += 24;
+        }
+        memcpy(vertices + 72 + (i*3 * VERTEXES_PER_FACE), block.faces[i].vertexData, sizeof(float) * 3 * VERTEXES_PER_FACE);
+        memcpy(indices + 36 + (i*6), block.faces[i].indicesData, sizeof(uint32_t) * 6);
+    }
+
+
+    // for(int i = 0; i < 72*2; i+=3){
+    //     printf("%f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
+    // }
+
+
+    // for(int i = 0; i < (72) ;i+=6){
+    //     for(int j = i; j < i+6;j++){
+    //         printf("%d ", indices[j]);
+    //     }
+    //     printf("\n");
+    // }
 
     glGenVertexArrays(1,&VAO);
     glGenBuffers(1, &VBO);
@@ -129,6 +163,9 @@ void run(){
 
     glBindVertexArray(VAO);
 
+
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -154,10 +191,13 @@ void run(){
 
         shader_use(shader);
 
+
+
         mat4_s view = init_mat4_id;
         mat4_s projection = init_mat4_id;
         mat4_s model = init_mat4_id;
-        // model = linealg_rotate(model, glfwGetTime(), &vec3(1.0f,1.0f,0.0f));
+        model = linealg_rotate(model, glfwGetTime(), &vec3(1.0f,1.0f,0.0f));
+        // model = linealg_translate(model, &vec3(i,0.0f,0.0f));
 
         view = camera_getViewMat(camera);
 
@@ -175,12 +215,11 @@ void run(){
         shader_setMat4(shader,"projection", &projection);
         shader_setMat4(shader,"model", &model);
         shader_setMat4(shader,"view", &view);
-        // ourShader.setMat4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-        // ourShader.setMat4("view", view);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
         //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36*2,GL_UNSIGNED_INT,0);
 
 
         glfwSwapBuffers(window);

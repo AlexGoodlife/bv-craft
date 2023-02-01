@@ -31,10 +31,6 @@ typedef struct{
 #define vec_dot(v,u) _Generic((v), vec2_s*: vec2_dot, vec3_s*: vec3_dot, vec4_s*: vec4_dot)(v,u)
 #define vec_normalize(v) _Generic((v), vec2_s*: vec2_normalize, vec3_s*: vec3_normalize, vec4_s*: vec4_normalize)(v)
 
-// #define vec2_isnormalized(v) (v->x >= -1.0f && v->x <= 1.0f && v->y >= -1.0f && v->y <= 1.0f) 
-// #define vec3_isnormalized(v) (v->x >= -1.0f && v->x <= 1.0f && v->y >= -1.0f && v->y <= 1.0f && v->z >= -1.0f && v->z <= 1.0f) 
-// #define vec4_isnormalized(v) (v->x >= -1.0f && v->x <= 1.0f && v->y >= -1.0f && v->y <= 1.0f && v->z >= -1.0f && v->z <= 1.0f && v->w >= -1.0f && v->w <= 1.0f) 
-
 #define vec3_multiply_const(vec, c) ({vec.x *= c; vec.y *= c; vec.z *= c;})
 
 #define vec3_negate(vec) ({vec.x = -vec.x; vec.y = -vec.y; vec.z = -vec.z;})
@@ -58,8 +54,6 @@ static inline vec3_s vec3_sub(vec3_s* v, vec3_s *u){
 static inline vec4_s vec4_sub(vec4_s* v, vec4_s *u){
     return vec4_add(v, &vec4(-(u->x), -(u->y),-(u->z),-(u->w)));
 }
-
-
 
 static inline float vec2_dot(vec2_s* v, vec2_s* u){
     return v->x * u->x + v->y * u->y;

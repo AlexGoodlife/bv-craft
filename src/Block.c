@@ -1,34 +1,35 @@
 #include "Block.h"
 
-static vec3_s RightFace[]  =
+static vec3_s ForwardFace[]  =  
 {
-    vec3(0.5f, -0.5f, -0.5f),
-    vec3(0.5f, -0.5f, 0.5f),
-    vec3(0.5f, 0.5f, 0.5f),
-    vec3(0.5f, 0.5f, -0.5f)
+        vec3(-0.5f, -0.5f, -0.5f),
+        vec3(-0.5f, 0.5f, -0.5f),
+        vec3(0.5f, 0.5f, -0.5f),
+        vec3(0.5f, -0.5f, -0.5f)
 };
 
-static uint32_t RightTris[] = 
+static uint32_t ForwardTris[]  =  
 {
     0,2,1,0,3,2
 };
 
-static vec3_s LeftFace[]  = 
+
+static vec3_s BackFace[]  =  
 {
-        vec3(-.5f, -.5f, -.5f),
-        vec3(-.5f, -.5f, .5f),
-        vec3(-.5f, .5f, .5f),
-        vec3(-.5f, .5f, -.5f)
+        vec3(-.5f, -.5f, 0.5f),
+        vec3(-.5f, .5f, 0.5f),
+        vec3(.5f, .5f, 0.5f),
+        vec3(.5f, -.5f, 0.5f)
 };
 
-static uint32_t LeftTris[]  =  
+static uint32_t BackTris[]  =  
 {
-    0,1,2,0,2,3
+    4,5,6,4,6,7
 };
 
 static vec3_s UpFace[]  =  
 {
-        vec3(-.5f, .5f, -.5f),
+        vec3(-.5f, .5f, -0.5f),
         vec3(-.5f, .5f, .5f),
         vec3(.5f, .5f, .5f),
         vec3(.5f, .5f, -.5f)
@@ -36,7 +37,7 @@ static vec3_s UpFace[]  =
 
 static uint32_t UpTris[]  =  
 {
-    0,1,2,0,2,3
+    8,9,10,8,10,11
 };
 
 static vec3_s DownFace[]  =  
@@ -49,34 +50,35 @@ static vec3_s DownFace[]  =
 
 static uint32_t DownTris[]  =  
 {
-    0,2,1,0,3,2
+    12,14,13,12,15,14
 };
 
-static vec3_s ForwardFace[]  =  
-{
-        vec3(-.5f, -.5f, .5f),
-        vec3(-.5f, .5f, .5f),
-        vec3(.5f, .5f, .5f),
-        vec3(.5f, -.5f, .5f)
-};
-
-static uint32_t ForwardTris[]  =  
-{
-    0,2,1,0,3,2
-};
-
-static vec3_s BackFace[]  =  
+static vec3_s LeftFace[]  = 
 {
         vec3(-.5f, -.5f, -.5f),
-        vec3(-.5f, .5f, -.5f),
-        vec3(.5f, .5f, -.5f),
-        vec3(.5f, -.5f, -.5f)
+        vec3(-.5f, -.5f, .5f),
+        vec3(-.5f, .5f, .5f),
+        vec3(-.5f, .5f, -.5f)
 };
 
-static uint32_t BackTris[]  =  
+static uint32_t LeftTris[]  =  
 {
-    0,1,2,0,2,3
+    16,17,18,16,18,19
 };
+
+static vec3_s RightFace[]  =
+{
+    vec3(0.5f, -0.5f, -0.5f),
+    vec3(0.5f, -0.5f, 0.5f),
+    vec3(0.5f, 0.5f, 0.5f),
+    vec3(0.5f, 0.5f, -0.5f)
+};
+
+static uint32_t RightTris[] = 
+{
+    20,22,21,20,23,22
+};
+
 
 
 FaceMesh facemesh_build(vec3_s* vertexData, uint32_t* indiceData){
