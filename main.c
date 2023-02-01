@@ -8,12 +8,15 @@
 #include "src/Shader.h"
 #include "src/Camera.h"
 #include "src/math/linealg.h"
+#include "src/Block.h"
 
 #define BACKGROUND_COLOR_R 0.2f
 #define BACKGROUND_COLOR_G 0.3f
 #define BACKGROUND_COLOR_B 0.3f
 #define BACKGROUND_COLOR_A 1.0f
 #define BACKGROUND_COLOR_4C BACKGROUND_COLOR_R, BACKGROUND_COLOR_G,BACKGROUND_COLOR_B,BACKGROUND_COLOR_A 
+
+#define VSYNC
 
 int init();
 void run();
@@ -103,6 +106,10 @@ void run(){
         -0.5f,  0.5f, -0.5f, 
     };
 
+    // for(int i = 1; i < 108;i+=3){
+    //     vertices[i] += 2.0f;
+    // }
+
     uint32_t indices[] = {
         0,1,3, // FRONT1
         1,2,3, // FRONT2
@@ -133,7 +140,7 @@ void run(){
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    bool b = true;
+    // bool b = true;
 
     while(!glfwWindowShouldClose(window)){
         float currentFrame = glfwGetTime();
@@ -154,9 +161,9 @@ void run(){
 
         view = camera_getViewMat(camera);
 
-        if(b){mat4_debug_print(view); b = false;};
+        // if(b){mat4_debug_print(view); b = false;};
 
-        view = linealg_translate(view, &vec3(0.0f,0.0f,6.0f));
+        // view = linealg_translate(view, &vec3(0.0f,0.0f,6.0f));
 
 
 
@@ -181,6 +188,7 @@ void run(){
 
     }
 
+    free(camera);
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
@@ -204,6 +212,9 @@ int init(){
 
     glfwMakeContextCurrent(window);
 
+    #ifndef VSYNC
+    glfwSwapInterval(0);
+    #endif
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         fprintf(stderr,"Failed to initialize GLAD");
