@@ -24,6 +24,10 @@ typedef struct{
 #define vec3(x_,y_,z_) (vec3_s){.x = x_, .y = y_, .z = z_}
 #define vec4(x_,y_,z_,w_) (vec4_s){.x = x_, .y = y_,.z = z_,.w = w_}
 
+#define vec2_cpy(vec) vec2(vec.x,vec.y)
+#define vec3_cpy(vec) vec3(vec.x,vec.y,vec.z)
+#define vec4_cpy(vec) vec4(vec.x,vec.y,vec.z,vec.w)
+
 #define vec_dot(v,u) _Generic((v), vec2_s*: vec2_dot, vec3_s*: vec3_dot, vec4_s*: vec4_dot)(v,u)
 #define vec_normalize(v) _Generic((v), vec2_s*: vec2_normalize, vec3_s*: vec3_normalize, vec4_s*: vec4_normalize)(v)
 
@@ -31,8 +35,9 @@ typedef struct{
 // #define vec3_isnormalized(v) (v->x >= -1.0f && v->x <= 1.0f && v->y >= -1.0f && v->y <= 1.0f && v->z >= -1.0f && v->z <= 1.0f) 
 // #define vec4_isnormalized(v) (v->x >= -1.0f && v->x <= 1.0f && v->y >= -1.0f && v->y <= 1.0f && v->z >= -1.0f && v->z <= 1.0f && v->w >= -1.0f && v->w <= 1.0f) 
 
-#define vec3_multiply_const(vec, c) ({vec.x *= c; vec.y *= c; vec.z *= c})
+#define vec3_multiply_const(vec, c) ({vec.x *= c; vec.y *= c; vec.z *= c;})
 
+#define vec3_negate(vec) ({vec.x = -vec.x; vec.y = -vec.y; vec.z = -vec.z;})
 
 static inline vec2_s vec2_add(vec2_s* v, vec2_s *u){
     return vec2(v->x + u->x, v->y + u->y);

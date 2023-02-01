@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "src/Shader.h"
+#include "src/Camera.h"
 #include "src/math/linealg.h"
 
 #define BACKGROUND_COLOR_R 0.2f
@@ -21,8 +22,14 @@ void processInput();
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void displayFPS();
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+
+//STATE, WRAP UP LATER
 
 GLFWwindow* window;
+Camera* camera;
+
 
 const char* windowTitle = "Testing";
 const int windowWidth = 800;
@@ -34,6 +41,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 uint32_t nbFrames = 0;
 
+//END OF STATE
 
 void run(){
 
@@ -125,6 +133,7 @@ void run(){
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    bool b = true;
 
     while(!glfwWindowShouldClose(window)){
         float currentFrame = glfwGetTime();
@@ -138,17 +147,23 @@ void run(){
 
         shader_use(shader);
 
-        // glm::mat4 view          = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        // glm::mat4 projection    = glm::mat4(1.0f);
         mat4_s view = init_mat4_id;
         mat4_s projection = init_mat4_id;
         mat4_s model = init_mat4_id;
-        model = linealg_rotate(model, glfwGetTime(), &vec3(1.0f,1.0f,0.0f));
-        projection = linealg_perspective((float)windowWidth/(float)windowHeight,radians(45.0f), 0.1f, 100.0f);
+        // model = linealg_rotate(model, glfwGetTime(), &vec3(1.0f,1.0f,0.0f));
+
+        view = camera_getViewMat(camera);
+
+        if(b){mat4_debug_print(view); b = false;};
+
         view = linealg_translate(view, &vec3(0.0f,0.0f,6.0f));
 
-        // projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        // view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+
+        projection = linealg_perspective((float)windowWidth/(float)windowHeight,radians(camera->fov), 0.1f, 100.0f);
+
+
+
         // pass transformation matrices to the shader
         shader_setMat4(shader,"projection", &projection);
         shader_setMat4(shader,"model", &model);
@@ -198,9 +213,9 @@ int init(){
     glViewport(0, 0, windowWidth, windowHeight);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
-    // glfwSetCursorPosCallback(window, Engine::mouse_callback);
-    // glfwSetScrollCallback(window, Engine::scroll_callback);
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
 
 
     glEnable(GL_DEPTH_TEST);
@@ -212,6 +227,7 @@ int init(){
         return false;
     }
     
+    camera = camera_init_new_default();
 
     return true;
 }
@@ -223,7 +239,48 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 void processInput(){
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+       camera_processKeyboard(camera, FORWARD,deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera_processKeyboard(camera, BACKWARDS,deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera_processKeyboard(camera, LEFT,deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera_processKeyboard(camera, RIGHT,deltaTime);
 }
+
+bool firstMouse = true;
+float lastX =  windowWidth / 2.0;
+float lastY =  windowHeight / 2.0;
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = (float)(xposIn);
+    float ypos = (float)(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    camera_processMouse(camera, xoffset,yoffset, true);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera_processScrollWheel(camera, yoffset);
+}
+
+
 
 double waitTime;
 void displayFPS(){

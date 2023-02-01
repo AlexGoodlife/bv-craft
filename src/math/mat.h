@@ -101,14 +101,13 @@ static inline mat4_s linealg_lookat(vec3_s* eye, vec3_s* center, vec3_s* up){
     vec3_s forward = vec3_sub(center,eye);
     forward = vec3_normalize(&forward);
 
-    printf("%f %f %f\n", forward.x,forward.y,forward.z);
-
-    vec3_s right = vec3_cross(&forward, up);
+    vec3_s right = vec3_cross(up,&forward);
 
 
     right = vec3_normalize(&right);
+    // vec3_negate(right);
 
-    vec3_s newUp = vec3_cross(&right, &forward);
+    vec3_s newUp = vec3_cross(&forward,&right);
 
     mat4_s result = init_mat4_id;
 
