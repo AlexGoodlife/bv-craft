@@ -48,105 +48,30 @@ uint32_t nbFrames = 0;
 
 void run(){
 
-    // float vertices[] = {
-    //     //FRONT FACE
-    //      0.5f,  0.5f, 0.0f,  // top right
-    //      0.5f, -0.5f, 0.0f,  // bottom right
-    //     -0.5f, -0.5f, 0.0f,  // bottom left
-    //     -0.5f,  0.5f, 0.0f,   // top left
-
-    //     //BACK FACE
-    //     //  0.5f,  0.5f, 0.5f,  // top right
-    //     //  0.5f, -0.5f, 0.5f,  // bottom right
-    //     // -0.5f, -0.5f, 0.5f,  // bottom left
-    //     // -0.5f,  0.5f, 0.5f,   // top left 
-    // };
-
-    // float vertices[] = {
-    //     -0.5f, -0.5f, -0.5f,
-    //      0.5f, -0.5f, -0.5f, 
-    //      0.5f,  0.5f, -0.5f,  
-    //      0.5f,  0.5f, -0.5f,  
-    //     -0.5f,  0.5f, -0.5f, 
-    //     -0.5f, -0.5f, -0.5f,  
-
-    //     -0.5f, -0.5f,  0.5f,  
-    //      0.5f, -0.5f,  0.5f,  
-    //      0.5f,  0.5f,  0.5f,  
-    //      0.5f,  0.5f,  0.5f,  
-    //     -0.5f,  0.5f,  0.5f,  
-    //     -0.5f, -0.5f,  0.5f,  
-
-    //     -0.5f,  0.5f,  0.5f,  
-    //     -0.5f,  0.5f, -0.5f,  
-    //     -0.5f, -0.5f, -0.5f,  
-    //     -0.5f, -0.5f, -0.5f,  
-    //     -0.5f, -0.5f,  0.5f,  
-    //     -0.5f,  0.5f,  0.5f, 
-
-    //      0.5f,  0.5f,  0.5f,  
-    //      0.5f,  0.5f, -0.5f,  
-    //      0.5f, -0.5f, -0.5f,  
-    //      0.5f, -0.5f, -0.5f,  
-    //      0.5f, -0.5f,  0.5f, 
-    //      0.5f,  0.5f,  0.5f, 
-
-    //     -0.5f, -0.5f, -0.5f, 
-    //      0.5f, -0.5f, -0.5f,  
-    //      0.5f, -0.5f,  0.5f,  
-    //      0.5f, -0.5f,  0.5f, 
-    //     -0.5f, -0.5f,  0.5f,  
-    //     -0.5f, -0.5f, -0.5f,  
-
-    //     -0.5f,  0.5f, -0.5f, 
-    //      0.5f,  0.5f, -0.5f,  
-    //      0.5f,  0.5f,  0.5f,  
-    //      0.5f,  0.5f,  0.5f, 
-    //     -0.5f,  0.5f,  0.5f,  
-    //     -0.5f,  0.5f, -0.5f, 
-    // };
-
-    // for(int i = 1; i < 108;i+=3){
-    //     vertices[i] += 2.0f;
-    // }
-
-    // uint32_t indices[] = {
-    //     0,1,3, // FRONT1
-    //     1,2,3, // FRONT2
-
-    //     // 4,5,7, // BACK1
-    //     // 5,6,7, // BACK2
-
-    //     // 5,6,0 // RIGHT2    
-
-    // };
-
 
     BlockMesh block = blockmesh_build();
 
     GLuint VAO, VBO, EBO;
 
-    float vertices[N_FACES * VERTEXES_PER_FACE * 3*2];
-    uint32_t indices[FACE_INDICES_COUNT * N_FACES*2];
+    float vertices[block.vertexCount];
+    uint32_t indices[block.indicesCount];
 
-    for(int i = 0; i < FaceOrder_End;i++){
-        memcpy(vertices + (i*3 * VERTEXES_PER_FACE), block.faces[i].vertexData, sizeof(float) * 3 * VERTEXES_PER_FACE);
-        memcpy(indices + (i*6), block.faces[i].indicesData, sizeof(uint32_t) * 6);
-    }
-    for(int i = 0; i < FaceOrder_End;i++){
-        for(int j = 0; j < 4;j++){
-            block.faces[i].vertexData[j] = vec3_add(&block.faces[i].vertexData[j], &vec3(2.0f,0.0f,0.0f));
-        }
-        for(int k = 0; k < 6;k++){
-            block.faces[i].indicesData[k] += 24;
-        }
-        memcpy(vertices + 72 + (i*3 * VERTEXES_PER_FACE), block.faces[i].vertexData, sizeof(float) * 3 * VERTEXES_PER_FACE);
-        memcpy(indices + 36 + (i*6), block.faces[i].indicesData, sizeof(uint32_t) * 6);
-    }
+    blockmesh_copyVertexData(&block, vertices);
+    blockmesh_copyIndicesData(&block, indices);
+    // for(int i = 0; i < FaceOrder_End;i++){
+    //     for(int j = 0; j < 4;j++){
+    //         block.faces[i].vertexData[j] = vec3_add(&block.faces[i].vertexData[j], &vec3(2.0f,0.0f,0.0f));
+    //     }
+    //     for(int k = 0; k < 6;k++){
+    //         block.faces[i].indicesData[k] += 24;
+    //     }
+    //     memcpy(vertices + 72 + (i*3 * VERTEXES_PER_FACE), block.faces[i].vertexData, sizeof(float) * 3 * VERTEXES_PER_FACE);
+    //     memcpy(indices + 36 + (i*6), block.faces[i].indicesData, sizeof(uint32_t) * 6);
+    // }
 
 
-    // for(int i = 0; i < 72*2; i+=3){
-    //     printf("%f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
+    // for(int i = 0; i < block.vertexCount; i+=5){
+    //     printf("%f %f %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2], vertices[i+3], vertices[i+4]);
     // }
 
 
@@ -174,8 +99,11 @@ void run(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float)*3));
+    glEnableVertexAttribArray(1);
 
     // bool b = true;
 
@@ -219,7 +147,7 @@ void run(){
         glBindVertexArray(VAO);
         // glDrawArrays(GL_TRIANGLES, 0, 36);
         //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawElements(GL_TRIANGLES, 36*2,GL_UNSIGNED_INT,0);
+        glDrawElements(GL_TRIANGLES, 36,GL_UNSIGNED_INT,0);
 
 
         glfwSwapBuffers(window);
