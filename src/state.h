@@ -32,7 +32,7 @@ typedef struct{
 
 extern Shader_id shader; // temp
 extern State* state;
-
+extern float deltaTime;
 
 
 int init(const char* windowTitle, int windowWidth, int windowHeight);

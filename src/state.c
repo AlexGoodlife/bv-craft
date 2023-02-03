@@ -7,6 +7,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 
 State* state;
@@ -47,6 +48,7 @@ int init(const char* windowTitle, int windowWidth, int windowHeight){
 
     glViewport(0, 0, windowWidth, windowHeight);
 
+    glfwSetKeyCallback(state->window, key_callback);
     glfwSetFramebufferSizeCallback(state->window, framebuffer_size_callback); 
     glfwSetCursorPosCallback(state->window, mouse_callback);
     glfwSetScrollCallback(state->window, scroll_callback);
@@ -78,9 +80,27 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
 }
 
+bool poly = false;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if( key == GLFW_KEY_P && action  == GLFW_PRESS){
+        if(!poly){
+            poly = true;
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else{
+            poly = false;
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+    }
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
+
 void processInput(float deltaTime){
-    if(glfwGetKey(state->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(state->window, true);
     if (glfwGetKey(state->window, GLFW_KEY_W) == GLFW_PRESS)
        camera_processKeyboard(state->camera, FORWARD,deltaTime);
     if (glfwGetKey(state->window, GLFW_KEY_S) == GLFW_PRESS)

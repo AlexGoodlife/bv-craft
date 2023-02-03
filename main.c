@@ -15,51 +15,23 @@ float lastFrame = 0.0f;
 
 void run(){
 
-    // BlockMesh block = blockmesh_build(7);
 
     uint32_t test_map[CHUNK_DEPTH][CHUNK_HEIGHT*CHUNK_WIDTH];
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
-                test_map[z][y*CHUNK_WIDTH + x] = 1;
+                test_map[z][y*CHUNK_WIDTH + x] = 3;
             }
         }
     }
 
-    
+    test_map[0][0+0] = 0;
 
-    // GLuint VAO, VBO, EBO;
+    for(int i = 0; i < 16;i++){
+        test_map[8][i*16 + 8] = 0;
+    }
 
-    // float vertices[block.vertexCount];
-    // // uint32_t indices[block.indicesCount];
-
-    // blockmesh_copyVertexData(&block, vertices);
-    // // blockmesh_copyIndicesData(&block, indices);
-
-    GLuint Atlas_texture = loadTexture("resources/atlas_mine.png");
-
-    // glGenVertexArrays(1,&VAO);
-    // glGenBuffers(1, &VBO);
-    // glGenBuffers(1, &EBO);
-
-    // glBindVertexArray(VAO);
-
-
-    // // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-    // glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)0);
-    // glEnableVertexAttribArray(0);
-
-    // glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float)*3));
-    // glEnableVertexAttribArray(1);
+    GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
     Chunk* test = chunk_build(test_map);
 
     // for(int i = 0; i < (4096* N_FACES)/8;i +=5){
@@ -79,6 +51,7 @@ void run(){
         displayFPS(deltaTime, lastFrame);
 
         processInput(deltaTime);
+
         glClearColor(BACKGROUND_COLOR_4C);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -105,14 +78,8 @@ void run(){
 
         chunk_render(test);
 
-        // glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-        //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        // glDrawElements(GL_TRIANGLES, 36,GL_UNSIGNED_INT,0);
-
-
-        glfwSwapBuffers(state->window);
         glfwPollEvents();
+        glfwSwapBuffers(state->window);
 
     }
 

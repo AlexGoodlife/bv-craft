@@ -16,7 +16,7 @@
 
 #define FLOATS_PER_CUBE VERTEXES_PER_FACE*N_FACES*FLOATS_PER_VERTEX
 
-#define ATLAS_WIDTH 256
+#define ATLAS_WIDTH 512
 #define ATLAS_HEIGHT 256
 #define TEXTURE_WIDTH 16
 #define TEXTURE_HEIGHT 16
@@ -34,6 +34,7 @@ enum FaceOrder{
 enum BlockID{
     Gravel,
     Stone,
+    Grass,
     Block_count
 };
 
@@ -64,5 +65,6 @@ void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s* position
 void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
 
 void blockmesh_buildAllBlocks();
+void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s* positionOffset);
 
 #endif

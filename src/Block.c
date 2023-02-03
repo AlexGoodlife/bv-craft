@@ -3,10 +3,10 @@
 BlockMesh* all_blocks;
 
 float blockmesh_mapUVx(float u, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-    return (float)((int)((textureWidth)*(blockID + u)) % atlasWidth) /256;
+    return (float)((int)((textureWidth)*(blockID + u)) % atlasWidth) /atlasWidth;
 }
 float blockmesh_mapUVy(float v, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-    return ((atlasHeight) - (((blockID/textureHeight) + (1-v))*(textureHeight))) / 256;
+    return ((atlasHeight) - (((blockID/(atlasWidth/textureWidth)) + (1-v))*(textureHeight))) / atlasHeight;
 }
 
 
@@ -248,5 +248,6 @@ void blockmesh_buildAllBlocks(){
     //Gravel block
     all_blocks[Gravel] = blockmesh_build_block(Gravel, 0, (uint32_t[]){0,0,0,0,0,0});
     all_blocks[Stone] = blockmesh_build_block(Stone, 1, (uint32_t[]){0,0,0,0,0,0});
+    all_blocks[Grass] = blockmesh_build_block(Grass, 2, (uint32_t[]){1,1,0,48,1,1});
 
 }

@@ -15,7 +15,7 @@
 typedef struct{
     GLuint VAO, VBO;
     float vertices[(CHUNK_WIDTH*CHUNK_DEPTH*CHUNK_HEIGHT)*FLOATS_PER_CUBE];
-    uint32_t cubeCount; // Will change to face count later
+    uint32_t faceCount; // Will change to face count later
 }ChunkMesh;
 
 typedef struct{
