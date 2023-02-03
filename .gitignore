@@ -1,3 +1,4 @@
 *.vscode
 *Makefile
 *out.exe
+*save.txt
