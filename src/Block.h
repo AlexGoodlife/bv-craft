@@ -5,17 +5,21 @@
 #include "stdint.h"
 #include "string.h" // memcpy
 #include "stdio.h"
+#include "stdlib.h"
 
 #define N_FACES 6
 #define VERTEXES_PER_FACE 6
 #define FACE_INDICES_COUNT 6
+#define FLOATS_PER_VERTEX 5
+
+#define TRIANGLES_PER_FACE 2
+
+#define FLOATS_PER_CUBE VERTEXES_PER_FACE*N_FACES*FLOATS_PER_VERTEX
 
 #define ATLAS_WIDTH 256
 #define ATLAS_HEIGHT 256
 #define TEXTURE_WIDTH 16
 #define TEXTURE_HEIGHT 16
-
-
 
 enum FaceOrder{
     FaceOrder_Front,
@@ -28,9 +32,9 @@ enum FaceOrder{
 };
 
 enum BlockID{
-    Air,
     Gravel,
-    Dirt,
+    Stone,
+    Block_count
 };
 
 typedef struct{
@@ -47,11 +51,18 @@ typedef struct
     uint32_t vertexCount;
     uint32_t indicesCount;
     uint32_t id;
+    uint32_t texture_atlas_position;
 }BlockMesh;
+
+extern BlockMesh* all_blocks;
 
 BlockMesh blockmesh_build(enum BlockID ID);
 
-void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices);
+// void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices);
+void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s* positionOffset);
 
 void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
+
+void blockmesh_buildAllBlocks();
+
 #endif

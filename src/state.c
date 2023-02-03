@@ -8,22 +8,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 
-// //STATE, WRAP UP LATER
-
-// GLFWwindow* window;
-// Camera* camera;
-
-// // Shader_id shader;
-
-// float deltaTime = 0.0f;
-// float lastFrame = 0.0f;
-// uint32_t nbFrames = 0;
-
-
-// const char* windowTitle = "Testing";
-// const int windowWidth = 800;
-// const int windowHeight = 600;
-
 
 State* state;
 Shader_id shader;
@@ -84,6 +68,8 @@ int init(const char* windowTitle, int windowWidth, int windowHeight){
 
     lastX = (state->windowWidth) / 2.0;
     lastY =  (state->windowHeight) / 2.0;
+
+    blockmesh_buildAllBlocks();
 
     return true;
 }
