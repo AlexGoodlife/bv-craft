@@ -21,9 +21,15 @@ Shader_id shader_load(const char* vertexPath, const char* fragPath){
     FILE* fragFile = fopen(fragPath, "rb");
     if(!vertexFile){
         ERROR("Failed to open file %s", vertexPath);
+        fclose(vertexFile);
+        fclose(fragFile);
+        return 0xFEEDBEEF;
     }
     if(!fragFile){
         ERROR("Failed to open file %s", fragPath);
+        fclose(vertexFile);
+        fclose(fragFile);
+        return 0xFEEDBEEF;
     }
 
     char* vertexString = readFromFile(vertexFile);
@@ -122,8 +128,7 @@ char* readFromFile(FILE *f){
     long length = ftell(f);
     rewind(f);
     if (length == -1 || (unsigned long) length >= SIZE_MAX) {
-        printf("hey\n");
-        // return NULL;
+        return NULL;
     }
 
     // Convert from long to size_t
@@ -132,8 +137,7 @@ char* readFromFile(FILE *f){
     // Allocation failed? Read incomplete?
     if (result == NULL || fread(result, 1, ulength, f) != ulength) {
         free(result);
-        printf("hey\n");
-        // return NULL;
+        return NULL;
     }
     result[ulength] = '\0'; // Now buffer points to a string
     return result;

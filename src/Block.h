@@ -7,7 +7,7 @@
 #include "stdio.h"
 
 #define N_FACES 6
-#define VERTEXES_PER_FACE 4
+#define VERTEXES_PER_FACE 6
 #define FACE_INDICES_COUNT 6
 
 #define ATLAS_WIDTH 256
@@ -29,6 +29,7 @@ enum FaceOrder{
 
 enum BlockID{
     Air,
+    Gravel,
     Dirt,
 };
 
@@ -36,6 +37,7 @@ typedef struct{
     vec3_s vertexData[VERTEXES_PER_FACE];
     vec2_s uvData[VERTEXES_PER_FACE];
     uint32_t indicesData[FACE_INDICES_COUNT];
+    uint32_t texture_pos_offset;
 }FaceMesh;
 
 
@@ -47,7 +49,7 @@ typedef struct
     uint32_t id;
 }BlockMesh;
 
-BlockMesh blockmesh_build();
+BlockMesh blockmesh_build(enum BlockID ID);
 
 void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices);
 

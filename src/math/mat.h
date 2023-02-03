@@ -34,10 +34,10 @@ typedef struct mat4_s
 #define mat4_debug_print(mat) do{for(int i = 0; i < 4;i++){printf("[ ");for(int j = 0; j < 4;j++){printf("%f ", mat.m[i][j]);}printf("]\n");}}while(0)
 
 
-static inline mat4_s linealg_mat4cpy(mat4_s base){
+static inline mat4_s linealg_mat4cpy(mat4_s* base){
     mat4_s result;
     for(int i = 0; i < 4;i++)
-        memcpy(result.m[i], base.m[i],sizeof(float) * 4);
+        memcpy(result.m[i], base->m[i],sizeof(float) * 4);
     return result;
 }
 
@@ -55,7 +55,7 @@ static inline mat4_s linealg_perspective(float aspectRatio, float fov, float nea
     return result;
 }
 
-static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
+static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s* v){
     float cs = cos(angle);
     float sn = sin(angle);
 
@@ -81,19 +81,19 @@ static inline mat4_s linealg_rotate(mat4_s base, float angle, vec3_s* v){
     mat4_s result = init_mat4_zero;
     
     for(int i = 0; i < 4;i++){
-        result.m[0][i] = base.m[0][i] * rotate.m[0][0] + base.m[1][i] * rotate.m[0][1] + base.m[2][i] * rotate.m[0][2];
-        result.m[1][i] = base.m[0][i] * rotate.m[1][0] + base.m[1][i] * rotate.m[1][1] + base.m[2][i] * rotate.m[1][2];
-        result.m[2][i] = base.m[0][i] * rotate.m[2][0] + base.m[1][i] * rotate.m[2][1] + base.m[2][i] * rotate.m[2][2];
-        result.m[3][i] = base.m[3][i];
+        result.m[0][i] = base->m[0][i] * rotate.m[0][0] + base->m[1][i] * rotate.m[0][1] + base->m[2][i] * rotate.m[0][2];
+        result.m[1][i] = base->m[0][i] * rotate.m[1][0] + base->m[1][i] * rotate.m[1][1] + base->m[2][i] * rotate.m[1][2];
+        result.m[2][i] = base->m[0][i] * rotate.m[2][0] + base->m[1][i] * rotate.m[2][1] + base->m[2][i] * rotate.m[2][2];
+        result.m[3][i] = base->m[3][i];
     }
     return result;
 
 }
 
-static inline mat4_s linealg_translate(mat4_s base, vec3_s* v){
+static inline mat4_s linealg_translate(mat4_s* base, vec3_s* v){
     mat4_s result = linealg_mat4cpy(base);
     for(int i = 0; i < 4;i++){
-        result.m[3][i] = base.m[0][i] * v->x + base.m[1][i] * v->y + base.m[2][i] * v->z + base.m[3][i];
+        result.m[3][i] = base->m[0][i] * v->x + base->m[1][i] * v->y + base->m[2][i] * v->z + base->m[3][i];
     }
 	return result;
 }
@@ -125,5 +125,15 @@ static inline mat4_s linealg_lookat(vec3_s* eye, vec3_s* center, vec3_s* up){
     return result;
 }
 
+static inline mat4_s linealg_scale(mat4_s* base, vec3_s* v){
+    mat4_s result = init_mat2_zero;
+    for(int i = 0; i < 4;i++){
+        result.m[0][i] = base->m[0][i] * v->x;
+        result.m[1][i] = base->m[1][i] * v->y;
+        result.m[2][i] = base->m[2][i] * v->z;
+        result.m[3][i] = base->m[3][i];
+    }
+    return result;
+}
 
 #endif
