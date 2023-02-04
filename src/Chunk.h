@@ -14,13 +14,15 @@
 
 typedef struct{
     GLuint VAO, VBO;
-    float vertices[(CHUNK_WIDTH*CHUNK_DEPTH*CHUNK_HEIGHT)*FLOATS_PER_CUBE];
+    // float vertices[(CHUNK_WIDTH*CHUNK_DEPTH*CHUNK_HEIGHT)*FLOATS_PER_CUBE];
+    float* vertices;
     uint32_t faceCount; // Will change to face count later
 }ChunkMesh;
 
 typedef struct{
     ChunkMesh* mesh;
-    uint32_t map[CHUNK_DEPTH][CHUNK_WIDTH*CHUNK_HEIGHT];
+    // uint32_t map[CHUNK_DEPTH][CHUNK_WIDTH*CHUNK_HEIGHT];
+    uint32_t** map;
 }Chunk;
 
 
