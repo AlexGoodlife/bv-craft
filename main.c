@@ -16,25 +16,25 @@ float lastFrame = 0.0f;
 void run(){
 
 
-    uint32_t test_map[CHUNK_DEPTH][CHUNK_HEIGHT*CHUNK_WIDTH];
+    uint32_t test_map[CHUNK_DEPTH *CHUNK_HEIGHT*CHUNK_WIDTH];
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
-                test_map[z][y*CHUNK_WIDTH + x] = 3;
+                test_map[z*CHUNK_WIDTH*CHUNK_HEIGHT + y*CHUNK_WIDTH + x] = 3;
             }
         }
     }
 
-    test_map[0][0+0] = 0;
+    test_map[0+0+0] = 0;
 
     for(int i = 0; i < 16;i++){
-        test_map[8][i*16 + 8] = 0;
+        test_map[8 *CHUNK_WIDTH*CHUNK_HEIGHT + i*16 + 8] = 0;
     }
 
     GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
     Chunk* test = chunk_build(test_map);
 
-    // for(int i = 0; i < (4096* N_FACES)/8;i +=5){
+    // for(int i = 0; i < test->mesh->faceCount * VERTEXES_PER_FACE;i +=5){
     //     printf("%f %f %f %f %f\n", test->mesh->vertices[i],test->mesh->vertices[i+1],test->mesh->vertices[i+2],test->mesh->vertices[i+3],test->mesh->vertices[i+4]);
     // }
 

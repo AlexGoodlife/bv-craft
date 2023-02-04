@@ -20,37 +20,37 @@ bool check_face_directions(Chunk* chunk, enum FaceOrder face,uint32_t x,uint32_t
     case FaceOrder_Front:
         if(z == 0)
             success = true;
-        else if(chunk->map[z-1][y*CHUNK_WIDTH + x] == 0)
+        else if(chunk->map[(z-1)*CHUNK_HEIGHT*CHUNK_WIDTH + y*CHUNK_WIDTH + x] == 0)
             success = true;
         break;
     case FaceOrder_Back:
          if(z == CHUNK_DEPTH-1)
             success = true;
-        else if(chunk->map[z+1][y*CHUNK_WIDTH + x] == 0)
+        else if(chunk->map[(z+1)*CHUNK_HEIGHT*CHUNK_WIDTH + y*CHUNK_WIDTH + x] == 0)
             success = true;
         break;
     case FaceOrder_Top:
         if(y == CHUNK_HEIGHT-1)
             success = true;
-        else if(chunk->map[z][(y+1)*CHUNK_WIDTH + x] == 0)
+        else if(chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH + (y+1)*CHUNK_WIDTH + x] == 0)
             success = true;
         break;
     case FaceOrder_Bottom:
          if(y == 0)
             success = true;
-        else if(chunk->map[z][(y-1)*CHUNK_WIDTH + x] == 0)
+        else if(chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH + (y-1)*CHUNK_WIDTH + x] == 0)
             success = true;
         break;
     case FaceOrder_Left:
         if(x == 0)
             success = true;
-        else if(chunk->map[z][(y)*CHUNK_WIDTH + x-1] == 0)
+        else if(chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH + (y)*CHUNK_WIDTH + x-1] == 0)
             success = true;
         break;
     case FaceOrder_Right:
         if(x == CHUNK_WIDTH-1)
             success = true;
-        else if(chunk->map[z][(y)*CHUNK_WIDTH + x+1] == 0)
+        else if(chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH + (y)*CHUNK_WIDTH + x+1] == 0)
             success = true;
         break;
     
@@ -65,7 +65,7 @@ void check_all_directions(Chunk* chunk, uint32_t x, uint32_t y, uint32_t z){
     for(int direction = 0; direction < FaceOrder_End;direction++){
         if(check_face_directions(chunk,direction,x,y,z)){
             facemesh_copyVertexData(
-                &all_blocks[chunk->map[z][y*CHUNK_WIDTH + x]-1].faces[direction], 
+                &all_blocks[chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH + y*CHUNK_WIDTH + x]-1].faces[direction], 
                 chunk->mesh->vertices + (chunk->mesh->faceCount * FLOATS_PER_VERTEX * VERTEXES_PER_FACE),
                 &vec3(x,y,z)
             );
@@ -78,7 +78,7 @@ void chunk_update(Chunk* chunk){
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
-                if(chunk->map[z][y*CHUNK_WIDTH + x] != 0){
+                if(chunk->map[z*CHUNK_HEIGHT*CHUNK_WIDTH+ y*CHUNK_WIDTH + x] != 0){
                     check_all_directions(chunk,x,y,z);
                 }
             }
@@ -89,14 +89,15 @@ void chunk_update(Chunk* chunk){
 
 
 
-Chunk* chunk_build(uint32_t map[CHUNK_DEPTH][CHUNK_WIDTH*CHUNK_HEIGHT]){
+Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     Chunk* result = malloc(sizeof(Chunk));
-    result->map = malloc(sizeof(uint32_t*)*CHUNK_DEPTH);
-    for(uint32_t z = 0; z < CHUNK_DEPTH;z++){
-        result->map[z] = malloc(sizeof(uint32_t) * CHUNK_WIDTH * CHUNK_HEIGHT);
-        memcpy(result->map[z], map[z], sizeof(uint32_t) * CHUNK_WIDTH*CHUNK_HEIGHT);
-    }
-    printf("Here\n");
+    // result->map = malloc(sizeof(uint32_t*)*CHUNK_DEPTH);
+    result->map = malloc(sizeof(uint32_t)*CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT);
+    memcpy(result->map, map, sizeof(uint32_t) * CHUNK_DEPTH * CHUNK_WIDTH * CHUNK_DEPTH);
+    // for(uint32_t z = 0; z < CHUNK_DEPTH;z++){
+    //     // result->map[z] = malloc(sizeof(uint32_t) * CHUNK_WIDTH * CHUNK_HEIGHT);
+    //     memcpy(result->map[z], map[z], sizeof(uint32_t) * CHUNK_WIDTH*CHUNK_HEIGHT);
+    // }
     result->mesh = chunckmesh_init();
     chunk_update(result);
     chunk_prepare(result);
@@ -133,9 +134,6 @@ void chunk_destroy(Chunk* chunk){
     glDeleteBuffers(1, &chunk->mesh->VBO);
     free(chunk->mesh->vertices);
     free(chunk->mesh);
-    for(int i = 0; i < CHUNK_DEPTH;i++){
-        free(chunk->map[i]);
-    }
     free(chunk->map);
     free(chunk);
     
