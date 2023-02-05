@@ -7,22 +7,20 @@
 #include "Block.h"
 #include "Shader.h"
 
-#define CHUNK_WIDTH 16
-#define CHUNK_DEPTH 16
-#define CHUNK_HEIGHT 16
+#define CHUNK_WIDTH 32
+#define CHUNK_DEPTH 32
+#define CHUNK_HEIGHT 32
 
 
 typedef struct{
     GLuint VAO, VBO;
-    // float vertices[(CHUNK_WIDTH*CHUNK_DEPTH*CHUNK_HEIGHT)*FLOATS_PER_CUBE];
     float* vertices;
-    uint32_t faceCount; // Will change to face count later
+    uint32_t faceCount;
 }ChunkMesh;
 
 typedef struct{
     ChunkMesh* mesh;
-    // uint32_t map[CHUNK_DEPTH][CHUNK_WIDTH*CHUNK_HEIGHT];
-    uint32_t* map;
+    uint32_t* map;// This is 3D
 }Chunk;
 
 

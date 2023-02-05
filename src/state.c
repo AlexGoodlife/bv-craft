@@ -13,6 +13,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 State* state;
 Shader_id shader;
 
+FILE* logFile;
+
 bool firstMouse = true;
 float lastX;
 float lastY;
@@ -73,8 +75,19 @@ int init(const char* windowTitle, int windowWidth, int windowHeight){
 
     blockmesh_buildAllBlocks();
 
+    logFile = fopen("log.txt", "w");
+
     return true;
 }
+
+void close(){
+    free(state->camera);
+    free(state);
+    fclose(logFile);
+    free(all_blocks);
+    glfwTerminate();
+}
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
@@ -154,7 +167,7 @@ void displayFPS(float deltaTime, float lastFrame){
 
         // glfwSetWindowTitle(state->window,buff);
         char buff[254];
-        sprintf(buff, "%s [%lf ms]", state->windowTitle, deltaTime);
+        sprintf(buff, "%s [%.4f ms]", state->windowTitle, deltaTime*1000);
 
         glfwSetWindowTitle(state->window,buff);
         // nbFrames = 0;
@@ -185,9 +198,9 @@ GLuint loadTexture(const char* path){
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         stbi_image_free(data);
@@ -200,3 +213,4 @@ GLuint loadTexture(const char* path){
 
     return textureID;
 }
+

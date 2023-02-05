@@ -10,13 +10,14 @@
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 void run(){
 
 
-    uint32_t test_map[CHUNK_DEPTH *CHUNK_HEIGHT*CHUNK_WIDTH];
+    // uint32_t test_map[CHUNK_DEPTH *CHUNK_HEIGHT*CHUNK_WIDTH];
+    uint32_t* test_map = malloc(sizeof(uint32_t) * CHUNK_DEPTH * CHUNK_WIDTH * CHUNK_HEIGHT);
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
@@ -27,12 +28,13 @@ void run(){
 
     test_map[0+0+0] = 0;
 
-    for(int i = 0; i < 16;i++){
-        test_map[8 *CHUNK_WIDTH*CHUNK_HEIGHT + i*16 + 8] = 0;
+    for(int i = 0; i < CHUNK_HEIGHT;i++){
+        test_map[CHUNK_DEPTH/2 *CHUNK_WIDTH*CHUNK_HEIGHT + i*CHUNK_WIDTH + CHUNK_WIDTH/2] = 0;
     }
 
     GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
     Chunk* test = chunk_build(test_map);
+    free(test_map);
 
     // for(int i = 0; i < test->mesh->faceCount * VERTEXES_PER_FACE;i +=5){
     //     printf("%f %f %f %f %f\n", test->mesh->vertices[i],test->mesh->vertices[i+1],test->mesh->vertices[i+2],test->mesh->vertices[i+3],test->mesh->vertices[i+4]);
@@ -83,15 +85,10 @@ void run(){
 
     }
 
-    free(state->camera);
-    free(state);
+ 
     chunk_destroy(test);
-    free(all_blocks);
-    // glDeleteVertexArrays(1, &VAO);
-    // glDeleteBuffers(1, &VBO);
-    // glDeleteBuffers(1, &EBO);
     shader_destroy(shader);
-    glfwTerminate();
+    close();
 }
 
 

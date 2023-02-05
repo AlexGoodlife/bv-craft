@@ -15,14 +15,19 @@ typedef struct{
     float x, y,z,w;
 }vec4_s;
 
+typedef struct{
+    int x, y,z;
+}ivec3_s;
+
 
 #define SIGN(x) ((x >= 0) - (x < 0))
 #define ABS(x) (x * SIGN(x))
 
-
 #define vec2(x_,y_) (vec2_s){.x = x_, .y = y_}
 #define vec3(x_,y_,z_) (vec3_s){.x = x_, .y = y_, .z = z_}
 #define vec4(x_,y_,z_,w_) (vec4_s){.x = x_, .y = y_,.z = z_,.w = w_}
+
+#define ivec3(x_,y_,z_) (ivec3_s){.x = x_, .y = y_, .z = z_}
 
 #define vec2_cpy(vec) vec2(vec.x,vec.y)
 #define vec3_cpy(vec) vec3(vec.x,vec.y,vec.z)
@@ -40,6 +45,9 @@ static inline vec2_s vec2_add(vec2_s* v, vec2_s *u){
 }
 static inline vec3_s vec3_add(vec3_s* v, vec3_s *u){
     return vec3(v->x + u->x, v->y + u->y,v->z + u->z);
+} 
+static inline ivec3_s ivec3_add(ivec3_s* v, ivec3_s *u){
+    return ivec3(v->x + u->x, v->y + u->y,v->z + u->z);
 } 
 static inline vec4_s vec4_add(vec4_s* v, vec4_s *u){
     return vec4(v->x + u->x, v->y + u->y, v->z + u->z, v->w + u->w);
