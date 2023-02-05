@@ -30,7 +30,8 @@ ChunkMesh* chunckmesh_init();
 Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]);
 void chunk_destroy(Chunk* chunk);
 void chunk_prepare(Chunk* chunk);
-void chunk_update(Chunk* chunk);
+// void chunk_update(Chunk* chunk);
+void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t chunk_pos,Chunk* chunk);
 void chunk_render(Chunk* chunk);
 
 

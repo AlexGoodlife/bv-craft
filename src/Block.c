@@ -245,7 +245,6 @@ void blockmesh_buildAllBlocks(){
 
     // Now we build these suckers one by one
 
-    //Gravel block
     all_blocks[Gravel] = blockmesh_build_block(Gravel, 0, (uint32_t[]){0,0,0,0,0,0});
     all_blocks[Stone] = blockmesh_build_block(Stone, 1, (uint32_t[]){0,0,0,0,0,0});
     all_blocks[Grass] = blockmesh_build_block(Grass, 2, (uint32_t[]){1,1,0,48,1,1});

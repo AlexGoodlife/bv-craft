@@ -3,7 +3,6 @@
 
 #include "math/linealg.h"
 #include <stdbool.h>
-#include <stdlib.h> //free
 
 enum CameraDirection{
     FORWARD,

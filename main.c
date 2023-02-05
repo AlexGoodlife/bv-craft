@@ -6,12 +6,16 @@
 #include "src/state.h"
 #include "src/Block.h"
 #include "src/Chunk.h"
+#include "src/World.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+
+#define WORLD_WIDTH 2
+#define WORLD_HEIGHT 2
 
 void run(){
 
@@ -32,17 +36,28 @@ void run(){
         test_map[CHUNK_DEPTH/2 *CHUNK_WIDTH*CHUNK_HEIGHT + i*CHUNK_WIDTH + CHUNK_WIDTH/2] = 0;
     }
 
+    test_map[CHUNK_DEPTH/2 *CHUNK_WIDTH*CHUNK_HEIGHT + 3*CHUNK_WIDTH + CHUNK_WIDTH/2-1] = 0;
+
+    test_map[CHUNK_DEPTH/2 *CHUNK_WIDTH*CHUNK_HEIGHT + (CHUNK_HEIGHT-2)*CHUNK_WIDTH + CHUNK_WIDTH/2] = 1;
+
     GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
     Chunk* test = chunk_build(test_map);
+    Chunk* test2 = chunk_build(test_map);
+    Chunk* test3 = chunk_build(test_map);
+    Chunk* test4 = chunk_build(test_map);
+
+    Chunk* map[WORLD_HEIGHT* WORLD_WIDTH] = {
+        test, test2,test3,test4
+    };
+
+    World* world = world_init(map, WORLD_WIDTH, WORLD_HEIGHT);
+
     free(test_map);
 
-    // for(int i = 0; i < test->mesh->faceCount * VERTEXES_PER_FACE;i +=5){
-    //     printf("%f %f %f %f %f\n", test->mesh->vertices[i],test->mesh->vertices[i+1],test->mesh->vertices[i+2],test->mesh->vertices[i+3],test->mesh->vertices[i+4]);
-    // }
 
-    // bool b = true;
     shader_use(shader);
     shader_setInt(shader,"Atlas", 0);
+
 
     mat4_s projection = init_mat4_id;
     projection = linealg_perspective((float)state->windowWidth/(float)state->windowHeight,radians(state->camera->fov), 0.1f, 100.0f);
@@ -61,32 +76,40 @@ void run(){
         glBindTexture(GL_TEXTURE_2D, Atlas_texture);
 
         shader_use(shader);
-        mat4_s view = init_mat4_id;
-        mat4_s model = init_mat4_id;
-        // model = linealg_rotate(&model, glfwGetTime(), &vec3(1.0f,1.0f,1.0f));
-        model = linealg_scale(&model, &vec3(0.5f,0.5f,0.5f));
-        // model = linealg_translate(model, &vec3(i,0.0f,0.0f));
+        for(int y = 0; y < world->map_height;y++){
+            for(int x = 0; x < world->map_width;x++){
 
-        view = camera_getViewMat(state->camera);
+                mat4_s view = init_mat4_id;
+                mat4_s model = init_mat4_id;
+                // model = linealg_rotate(&model, glfwGetTime(), &vec3(1.0f,1.0f,1.0f));
+                model = linealg_scale(&model, &vec3(0.5f,0.5f,0.5f));
+                model = linealg_translate(&model, &vec3(x*CHUNK_WIDTH,0.0f,y*CHUNK_DEPTH));
 
-        // if(b){mat4_debug_print(view); b = false;};
+                view = camera_getViewMat(state->camera);
 
-        // view = linealg_translate(view, &vec3(0.0f,-1.0f,3.0f));
+                // if(b){mat4_debug_print(view); b = false;};
 
-        // pass transformation matrices to the shader
-        shader_setMat4(shader,"projection", &projection);
-        shader_setMat4(shader,"model", &model);
-        shader_setMat4(shader,"view", &view);
+                // view = linealg_translate(view, &vec3(0.0f,-1.0f,3.0f));
 
-        chunk_render(test);
+                // pass transformation matrices to the shader
+                shader_setMat4(shader,"projection", &projection);
+                shader_setMat4(shader,"model", &model);
+                shader_setMat4(shader,"view", &view);
+
+                chunk_render(world->chunk_map[INDEX2D(x,y,world->map_width)]);
+            }
+        }
+
+        // chunk_render(test);
+        // world_render(world);
 
         glfwPollEvents();
         glfwSwapBuffers(state->window);
 
     }
 
- 
-    chunk_destroy(test);
+    world_destroy(world);
+    // chunk_destroy(test);
     shader_destroy(shader);
     close();
 }

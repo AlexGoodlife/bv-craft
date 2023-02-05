@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include <stdlib.h> // malloc
+#include <stdlib.h> // malloc, free
 
 
 void updateCamera(Camera* camera);

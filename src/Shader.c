@@ -1,6 +1,5 @@
 #include "Shader.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // malloc
 #include <errno.h>
 
 #define MAX_BUFFER_SIZE 1024
