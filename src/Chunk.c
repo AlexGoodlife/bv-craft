@@ -16,64 +16,14 @@ ChunkMesh* chunckmesh_init(){
     return result;
 }
 
-// bool check_face_directions(Chunk* chunk,uint32_t x,uint32_t y,uint32_t z){
-
-// bool check_face_directions(Chunk* chunk, enum FaceOrder face,uint32_t x,uint32_t y,uint32_t z){
-//     bool success = false;
-//     switch (face)
-//     {
-//     case FaceOrder_Front:
-//         if(z == 0)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x,y,z-1)] == 0)
-//             success = true;
-//         break;
-//     case FaceOrder_Back:
-//          if(z == CHUNK_DEPTH-1)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x,y,z+1)] == 0)
-//             success = true;
-//         break;
-//     case FaceOrder_Top:
-//         if(y == CHUNK_HEIGHT-1)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x,y+1,z)] == 0)
-//             success = true;
-//         break;
-//     case FaceOrder_Bottom:
-//          if(y == 0)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x,y-1,z)] == 0)
-//             success = true;
-//         break;
-//     case FaceOrder_Left:
-//         if(x == 0)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x-1,y,z)] == 0)
-//             success = true;
-//         break;
-//     case FaceOrder_Right:
-//         if(x == CHUNK_WIDTH-1)
-//             success = true;
-//         else if(chunk->map[INDEXCHUNK(x+1,y,z)] == 0)
-//             success = true;
-//         break;
-    
-//     default:
-//         break;
-//     }
-   
-//     return success;
-// }   
-
-static ivec3_s check_directions[6] = 
+static ivec3_s check_directions[FaceOrder_End] = 
 {
-    ivec3(0,0,-1),
-    ivec3(0,0,1),
-    ivec3(0,1,0),
-    ivec3(0,-1,0),
-    ivec3(-1,0,0),
-    ivec3(1,0,0)
+    ivec3(0,0,-1), // FRONT
+    ivec3(0,0,1), // BACK
+    ivec3(0,1,0), // TOP
+    ivec3(0,-1,0), // BOTTOM 
+    ivec3(-1,0,0), // LEFT
+    ivec3(1,0,0) // RIGHT
 };
 
 bool check_face_directions(Chunk* chunk, enum FaceOrder face,uint32_t x,uint32_t y,uint32_t z){
@@ -99,6 +49,7 @@ void check_all_directions(Chunk* chunk, uint32_t x, uint32_t y, uint32_t z){
 }
 
 void chunk_update(Chunk* chunk){
+    chunk->mesh->faceCount = 0;
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
@@ -108,7 +59,7 @@ void chunk_update(Chunk* chunk){
             }
         }
     }
-    // chunk->mesh->vertices = realloc(chunk->mesh->vertices,chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE*sizeof(float));
+    // chunk->mesh->vertices = realloc(chunk->mesh->vertices,chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE*sizeof(float)); // THIS CRASHES UPDATE IDK WHY
 }
 
 
@@ -129,11 +80,11 @@ Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
 }
 
 void chunk_prepare(Chunk* chunk){
+
     glBindVertexArray(chunk->mesh->VAO);
 
 
     glBindBuffer(GL_ARRAY_BUFFER, chunk->mesh->VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(chunk->mesh->vertices), chunk->mesh->vertices, GL_STATIC_DRAW);
     glBufferData(GL_ARRAY_BUFFER, chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE *sizeof(float), chunk->mesh->vertices, GL_STATIC_DRAW);
 
 
