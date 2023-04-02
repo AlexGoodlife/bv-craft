@@ -1,11 +1,8 @@
 #include "Chunk.h"
 #include "common.h"
 
-#define INDEXCHUNK(x,y,z) INDEX3D(x,y,z,CHUNK_WIDTH,CHUNK_HEIGHT)
 
 #define CHUNK_IN_BOUNDS(x,y,z) ((x) >= 0 && (x) < CHUNK_WIDTH && (y) >= 0 && (y) < CHUNK_HEIGHT && (z) >= 0 && (z) < CHUNK_DEPTH)
-
-#define IN_BOUNDS_2D(x,y,width,height) ((x) >= 0 && (x) < width && (y) >= 0 && (y) < height)
 
 
 ChunkMesh* chunckmesh_init(){
@@ -81,11 +78,11 @@ void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t 
 Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     Chunk* result = malloc(sizeof(Chunk));
     result->map = calloc(CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT,sizeof(uint32_t));
-    LOG("MADE IT THROUGH calloc\n");
+    // LOG("MADE IT THROUGH calloc\n");
     memcpy(result->map, map, sizeof(uint32_t) * CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH);
-    LOG("MADE IT THROUGH MMCPY\n");
+    // LOG("MADE IT THROUGH MMCPY\n");
     result->mesh = chunckmesh_init();
-    LOG("MADE IT THROUGH init\n");
+    // LOG("MADE IT THROUGH init\n");
     // chunk_update(result);
     // LOG("MADE IT THROUGH update\n");
     // chunk_prepare(result);

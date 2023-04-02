@@ -1,44 +1,44 @@
 #ifndef BV_STATE_H
 #define BV_STATE_H
-
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "../glad/glad.h"
+#include "Block.h"
 #include "Camera.h"
 #include "Shader.h"
-#include "Block.h"
-
+#include "World.h"
+#include <GLFW/glfw3.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define VSYNC
+#define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
 #define BACKGROUND_COLOR_R 0.2f
 #define BACKGROUND_COLOR_G 0.3f
 #define BACKGROUND_COLOR_B 0.3f
 #define BACKGROUND_COLOR_A 1.0f
-#define BACKGROUND_COLOR_4C BACKGROUND_COLOR_R, BACKGROUND_COLOR_G,BACKGROUND_COLOR_B,BACKGROUND_COLOR_A 
+#define BACKGROUND_COLOR_4C                                                    \
+  BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B, BACKGROUND_COLOR_A
 
+extern World *world;
 
-
-typedef struct{
-    GLFWwindow* window;
-    Camera* camera;
-    const char* windowTitle;
-    int windowWidth;
-    int windowHeight;
-}State;
+typedef struct {
+  GLFWwindow *window;
+  Camera *camera;
+  const char *windowTitle;
+  int windowWidth;
+  int windowHeight;
+} State;
 
 extern Shader_id shader; // temp
-extern State* state;
+extern State *state;
 extern float deltaTime;
 
-
-int init(const char* windowTitle, int windowWidth, int windowHeight);
+int init(const char *windowTitle, int windowWidth, int windowHeight);
 void close();
 void processInput(float deltaTime);
 void displayFPS(float deltaTime, float lastFrame);
-GLuint loadTexture(const char* path);
+GLuint loadTexture(const char *path);
 
 #endif

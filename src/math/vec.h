@@ -16,6 +16,10 @@ typedef struct{
 }vec4_s;
 
 typedef struct{
+    int x, y;
+}ivec2_s;
+
+typedef struct{
     int x, y,z;
 }ivec3_s;
 
@@ -27,11 +31,15 @@ typedef struct{
 #define vec3(x_,y_,z_) (vec3_s){.x = x_, .y = y_, .z = z_}
 #define vec4(x_,y_,z_,w_) (vec4_s){.x = x_, .y = y_,.z = z_,.w = w_}
 
+#define ivec2(x_,y_) (ivec2_s){.x = x_, .y = y_}
 #define ivec3(x_,y_,z_) (ivec3_s){.x = x_, .y = y_, .z = z_}
 
 #define vec2_cpy(vec) vec2(vec.x,vec.y)
 #define vec3_cpy(vec) vec3(vec.x,vec.y,vec.z)
 #define vec4_cpy(vec) vec4(vec.x,vec.y,vec.z,vec.w)
+
+#define ivec2_cpy(vec) ivec2(vec.x,vec.y)
+#define ivec3_cpy(vec) ivec3(vec.x,vec.y,vec.z)
 
 #define vec_dot(v,u) _Generic((v), vec2_s*: vec2_dot, vec3_s*: vec3_dot, vec4_s*: vec4_dot)(v,u)
 #define vec_normalize(v) _Generic((v), vec2_s*: vec2_normalize, vec3_s*: vec3_normalize, vec4_s*: vec4_normalize)(v)
@@ -54,13 +62,16 @@ static inline vec4_s vec4_add(vec4_s* v, vec4_s *u){
 }
 
 static inline vec2_s vec2_sub(vec2_s* v, vec2_s *u){
-    return vec2_add(v, &vec2(-(u->x), -(u->y)));
+    vec2_s tmp = vec2(-(u->x), -(u->y));
+    return vec2_add(v, &tmp);
 }
 static inline vec3_s vec3_sub(vec3_s* v, vec3_s *u){
-    return vec3_add(v, &vec3(-(u->x), -(u->y), -(u->z)));
+    vec3_s tmp = vec3(-(u->x), -(u->y), -(u->z));
+    return vec3_add(v, &tmp);
 } 
 static inline vec4_s vec4_sub(vec4_s* v, vec4_s *u){
-    return vec4_add(v, &vec4(-(u->x), -(u->y),-(u->z),-(u->w)));
+    vec4_s tmp = vec4(-(u->x), -(u->y),-(u->z),-(u->w));
+    return vec4_add(v, &tmp);
 }
 
 static inline float vec2_dot(vec2_s* v, vec2_s* u){

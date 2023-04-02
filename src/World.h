@@ -3,17 +3,24 @@
 
 #include "Chunk.h"
 #include "common.h"
+#include "math/vec.h"
+
+#define RAYCAST_AMOUNT 5
 
 typedef struct{
     Chunk** chunk_map;    // THIS IS TWO DIMENSIONAL FOR NOW
     uint32_t map_width;
     uint32_t map_height;
+    vec3_s center_offset;
 }World;
 
-World* world_init(Chunk** chunk_map, uint32_t map_width, uint32_t map_height);
+World* world_init(Chunk** chunk_map, uint32_t map_width, uint32_t map_height, vec3_s center_offset);
 
 void world_render(World* world);
 void world_destroy(World* world);
+
+// DEPRECATED
+bool world_raycast(World* world, vec3_s pos, vec3_s direction,vec3_s world_scaling, ivec2_s* out_world_coord, ivec3_s* out_chunk_coord);
 
 
 #endif

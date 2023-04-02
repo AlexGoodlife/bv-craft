@@ -214,8 +214,22 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
     float half_pixel_size = ((1/ATLAS_WIDTH)* 0.5f);
     for(int i = 0; i < FaceOrder_End;i++){
         for(int j = 0; j < VERTEXES_PER_FACE;j++){
-            result.faces[i].uvData[j].x = blockmesh_mapUVx(result.faces[i].uvData[j].x, result.id + result.faces[i].texture_pos_offset,TEXTURE_WIDTH, TEXTURE_HEIGHT, ATLAS_WIDTH, ATLAS_HEIGHT);
-            result.faces[i].uvData[j].y = blockmesh_mapUVy(result.faces[i].uvData[j].y, result.id + result.faces[i].texture_pos_offset,TEXTURE_WIDTH, TEXTURE_HEIGHT, ATLAS_WIDTH, ATLAS_HEIGHT);
+            result.faces[i].uvData[j].x = blockmesh_mapUVx(
+                result.faces[i].uvData[j].x,
+                result.id + result.faces[i].texture_pos_offset,
+                TEXTURE_WIDTH,
+                TEXTURE_HEIGHT,
+                ATLAS_WIDTH,
+                ATLAS_HEIGHT
+            );
+            result.faces[i].uvData[j].y = blockmesh_mapUVy(
+                result.faces[i].uvData[j].y,
+                result.id + result.faces[i].texture_pos_offset,
+                TEXTURE_WIDTH,
+                TEXTURE_HEIGHT,
+                ATLAS_WIDTH,
+                ATLAS_HEIGHT
+            );
         }
         result.faces[i].uvData[0].x += half_pixel_size;
         result.faces[i].uvData[0].y += half_pixel_size;
@@ -236,6 +250,7 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
         result.faces[i].uvData[5].y += half_pixel_size;
     }
     result.vertexCount = N_FACES * VERTEXES_PER_FACE * 5;
+void
     result.indicesCount = FACE_INDICES_COUNT * N_FACES;
     return result;
 }
@@ -250,3 +265,4 @@ void blockmesh_buildAllBlocks(){
     all_blocks[Grass] = blockmesh_build_block(Grass, 2, (uint32_t[]){1,1,0,48,1,1});
 
 }
+

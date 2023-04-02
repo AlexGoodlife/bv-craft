@@ -54,6 +54,7 @@ typedef struct
     uint32_t texture_atlas_position;
 }BlockMesh;
 
+
 extern BlockMesh* all_blocks;
 
 BlockMesh blockmesh_build(enum BlockID ID);
