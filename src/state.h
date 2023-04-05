@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VSYNC
+#define VSYNC 1
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
 #define BACKGROUND_COLOR_R 0.2f

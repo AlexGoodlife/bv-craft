@@ -45,7 +45,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
 
   glfwMakeContextCurrent(state->window);
 
-#ifndef VSYNC
+#if !VSYNC
   glfwSwapInterval(0);
 #endif
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -99,7 +99,14 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 
 bool poly = false;
 
+#define RAYCAST 0
+
 void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    ivec2_s pos =world_get_index(world, state->camera->pos);
+    LOG("pos_x : %d, pos_y : %d\n", pos.x, pos.y );  
+  }
+#if RAYCAST
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     ivec2_s world_coord = ivec2(0, 0);
     ivec3_s chunk_coord = ivec3(0,0,0);
@@ -119,6 +126,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) 
         
     }
   }
+#endif
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,

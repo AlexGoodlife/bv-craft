@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "common.h"
+#include <stdint.h>
 
 
 #define CHUNK_IN_BOUNDS(x,y,z) ((x) >= 0 && (x) < CHUNK_WIDTH && (y) >= 0 && (y) < CHUNK_HEIGHT && (z) >= 0 && (z) < CHUNK_DEPTH)
@@ -78,15 +79,8 @@ void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t 
 Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     Chunk* result = malloc(sizeof(Chunk));
     result->map = calloc(CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT,sizeof(uint32_t));
-    // LOG("MADE IT THROUGH calloc\n");
     memcpy(result->map, map, sizeof(uint32_t) * CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH);
-    // LOG("MADE IT THROUGH MMCPY\n");
     result->mesh = chunckmesh_init();
-    // LOG("MADE IT THROUGH init\n");
-    // chunk_update(result);
-    // LOG("MADE IT THROUGH update\n");
-    // chunk_prepare(result);
-    // LOG("MADE IT THROUGH prepare\n");
     return result;
 }
 
@@ -107,12 +101,14 @@ void chunk_prepare(Chunk* chunk){
     
 }
 
+
 void chunk_render(Chunk* chunk){
     glBindVertexArray(chunk->mesh->VAO);
     glDrawArrays(GL_TRIANGLES,0, chunk->mesh->faceCount*VERTEXES_PER_FACE);
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }
+
 
 void chunk_destroy(Chunk* chunk){
     glDeleteVertexArrays(1, &chunk->mesh->VAO);

@@ -17,6 +17,8 @@ extern FILE *logFile;
 
 #define ERROR(MESSAGE, ...) do{fprintf(stderr,"EXITED AT %s ON LINE %d WITH ERROR MESSAGE: ", __FILE__, __LINE__); fprintf(stderr, MESSAGE, ##__VA_ARGS__); fprintf(stderr, " ERRNO: %s", strerror(errno));exit(1);}while(0)
 
+#define TODO(MESSAGE, ...) do{fprintf(stderr,"EXITED AT %s ON LINE %d WITH TODO MESSAGE: ", __FILE__, __LINE__); fprintf(stderr, MESSAGE, ##__VA_ARGS__);exit(1);}while(0)
+
 #define INDEX2D(x,y,width) ((y)* (width)) + (x)
 
 #define INDEX3D(x,y,z,width,height) ((z)*width*height) + INDEX2D(x,y,width)

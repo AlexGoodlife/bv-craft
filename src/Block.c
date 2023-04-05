@@ -250,7 +250,6 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
         result.faces[i].uvData[5].y += half_pixel_size;
     }
     result.vertexCount = N_FACES * VERTEXES_PER_FACE * 5;
-void
     result.indicesCount = FACE_INDICES_COUNT * N_FACES;
     return result;
 }

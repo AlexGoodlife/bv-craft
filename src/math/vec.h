@@ -48,8 +48,13 @@ typedef struct{
 
 #define vec3_negate(vec) ({vec.x = -vec.x; vec.y = -vec.y; vec.z = -vec.z;})
 
+
 static inline vec2_s vec2_add(vec2_s* v, vec2_s *u){
     return vec2(v->x + u->x, v->y + u->y);
+}
+
+static inline ivec2_s ivec2_add(ivec2_s* v, ivec2_s *u){
+    return ivec2(v->x + u->x, v->y + u->y);
 }
 static inline vec3_s vec3_add(vec3_s* v, vec3_s *u){
     return vec3(v->x + u->x, v->y + u->y,v->z + u->z);
@@ -59,6 +64,11 @@ static inline ivec3_s ivec3_add(ivec3_s* v, ivec3_s *u){
 } 
 static inline vec4_s vec4_add(vec4_s* v, vec4_s *u){
     return vec4(v->x + u->x, v->y + u->y, v->z + u->z, v->w + u->w);
+}
+
+static inline ivec2_s ivec2_sub(ivec2_s* v, ivec2_s *u){
+    ivec2_s tmp = ivec2(-(u->x), -(u->y));
+    return ivec2_add(v, &tmp);
 }
 
 static inline vec2_s vec2_sub(vec2_s* v, vec2_s *u){
@@ -78,6 +88,7 @@ static inline float vec2_dot(vec2_s* v, vec2_s* u){
     return v->x * u->x + v->y * u->y;
 }
 
+
 static inline vec2_s vec2_normalize(vec2_s* v){
     vec2_s result = vec2(v->x, v->y);
     float dot = vec2_dot(v,v);
@@ -89,6 +100,10 @@ static inline vec2_s vec2_normalize(vec2_s* v){
 
 static inline float vec3_dot(vec3_s* v, vec3_s* u){
     return v->x * u->x + v->y * u->y + v->z * u->z;
+}
+
+static inline float vec3_norm(vec3_s v){
+    return sqrtf(ABS(vec3_dot(&v,&v)));
 }
 
 static inline vec3_s vec3_normalize(vec3_s* v){
@@ -118,7 +133,6 @@ static inline vec4_s vec4_normalize(vec4_s* v){
 static inline vec3_s vec3_cross(vec3_s *v, vec3_s *u){
     return vec3(v->y*u->z - v->z*u->y, v->z*u->x - v->x*u->z, v->x*u->y - v->y*u->x); 
 }
-
 
 
 #endif
