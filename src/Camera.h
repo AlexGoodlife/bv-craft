@@ -13,7 +13,7 @@ enum CameraDirection{
 
 const static float DEF_YAW         = -90.0f;
 const static float DEF_PITCH       =  0.0f;
-const static float DEF_SPEED       =  4.5f;
+const static float DEF_SPEED       =  8.5f;
 const static float DEF_SENSITIVITY =  0.1f;
 const static float DEF_FOV        =  45.0f;
 

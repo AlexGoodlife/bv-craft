@@ -61,6 +61,10 @@ void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,C
 }
 
 void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t chunk_pos,Chunk* chunk){
+    if(chunk->mesh->vertices){
+        free(chunk->mesh->vertices);
+        chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
+    }
     chunk->mesh->faceCount = 0;
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){

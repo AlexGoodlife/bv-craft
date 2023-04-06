@@ -15,9 +15,10 @@ typedef struct{
     uint32_t map_height;
     ivec2_s center_index;
     vec3_s bottom_left_offset;
+    vec3_s center_coord;
 }World;
 
-World* world_init(Chunk** chunk_map, uint32_t map_width, uint32_t map_height, vec3_s bottom_left_offset);
+World* world_init(Chunk** chunk_map, uint32_t map_width, uint32_t map_height, vec3_s center_pos);
 void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view);
 
 void world_destroy(World* world);
