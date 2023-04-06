@@ -10,14 +10,14 @@
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
   float x_offset = (width/2)*CHUNK_WIDTH + CHUNK_WIDTH/2;
   float y_offset = (height/2)*CHUNK_HEIGHT + CHUNK_HEIGHT/2;
-  vec3_s translate_x = vec3_sub(&pos, &vec3(x_offset, 0,y_offset));
+  vec3_s translate_x = vec3_sub(pos, vec3(x_offset, 0,y_offset));
   translate_x.y = 0;
   return translate_x;
 }
 
 //TODO MAKE NEGATIVE NUMBERS WORK PROPER
 ivec2_s world_get_index(World *world, vec3_s pos){
-  vec3_s pos_to_center = vec3_sub(&pos, &world->bottom_left_offset);
+  vec3_s pos_to_center = vec3_sub(pos, world->bottom_left_offset);
   int x = pos_to_center.x / CHUNK_WIDTH;
   int y = pos_to_center.z / CHUNK_DEPTH;
   return ivec2(x, y);
@@ -30,9 +30,9 @@ void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
       for (int x = 0; x < world->map_width; x++)  {
         mat4_s model = init_mat4_id;
         vec3_s translate = vec3(x * CHUNK_WIDTH, 0.0f, y * CHUNK_DEPTH);
-        vec3_s translate_add = vec3_add(&translate, &world->bottom_left_offset);
+        vec3_s translate_add = vec3_add(translate, world->bottom_left_offset);
         model = linealg_translate(
-            &model, &translate_add);
+            &model, translate_add);
 
         // pass transformation matrices to the shader
         shader_setMat4(shader, "projection", &projection);
@@ -82,7 +82,7 @@ bool world_raycast(World *world, vec3_s pos, vec3_s direction,
 {
   TODO("IMPLEMENT RAYCAST");
   vec3_s current_pos = vec3(pos.x, pos.y, pos.z);
-  vec3_s direction_normalize = vec3_normalize(&direction);
+  vec3_s direction_normalize = vec3_normalize(direction);
   LOGLN(" ");
   LOG_VEC3(direction_normalize);
   for (int i = 0; i < RAYCAST_AMOUNT; i++) {
@@ -108,7 +108,7 @@ bool world_raycast(World *world, vec3_s pos, vec3_s direction,
         }
       }
     }
-    current_pos = vec3_add(&current_pos, &direction_normalize);
+    current_pos = vec3_add(current_pos, direction_normalize);
   }
   return false;
 }
@@ -116,7 +116,7 @@ bool world_raycast(World *world, vec3_s pos, vec3_s direction,
 
 void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   vec3_s new_bot_left = calculate_bottom_left(new_pos, world->map_width,world->map_height);
-  ivec2_s center_offset = ivec2_sub(&world->center_index, &new_index);
+  ivec2_s center_offset = ivec2_sub(world->center_index, new_index);
 
   int chunks_size = world->map_width*world->map_height;
   Chunk* old_chunks[chunks_size];
@@ -127,7 +127,7 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   // MOVE OLD CHUNKS TO NEW POSITIONS 
   for(int y = 0; y < world->map_height;y++){
     for(int x = 0; x < world->map_width;x++){
-      ivec2_s new_index = ivec2_sub(&ivec2(x,y), &center_offset); 
+      ivec2_s new_index = ivec2_sub(ivec2(x,y), center_offset); 
       if(IN_BOUNDS_2D(new_index.x, new_index.y, world->map_width, world->map_height)){
         uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
         uint32_t old_index_pos = INDEX2D(x, y, world->map_width);
@@ -158,9 +158,9 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
 
 void world_update(World* world,vec3_s pos){
   ivec2_s new_index = world_get_index(world, pos);
-  ivec2_s new_index_offset = ivec2_sub(&world->center_index, &new_index);
-  world->center_coord= vec3_sub(&world->center_coord, &vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
-  vec3_s new_center = vec3_sub(&world->bottom_left_offset, &vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
+  ivec2_s new_index_offset = ivec2_sub(world->center_index, new_index);
+  world->center_coord= vec3_sub(world->center_coord, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
+  vec3_s new_center = vec3_sub(world->bottom_left_offset, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
   uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
   if(new_index_pos != ((world->map_height * world->map_width) / 2)){
     LOG_VEC3(new_center);

@@ -55,7 +55,7 @@ static inline mat4_s linealg_perspective(float aspectRatio, float fov, float nea
     return result;
 }
 
-static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s* v){
+static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s v){
     float cs = cos(angle);
     float sn = sin(angle);
 
@@ -90,25 +90,25 @@ static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s* v){
 
 }
 
-static inline mat4_s linealg_translate(mat4_s* base, vec3_s* v){
+static inline mat4_s linealg_translate(mat4_s* base, vec3_s v){
     mat4_s result = linealg_mat4cpy(base);
     for(int i = 0; i < 4;i++){
-        result.m[3][i] = base->m[0][i] * v->x + base->m[1][i] * v->y + base->m[2][i] * v->z + base->m[3][i];
+        result.m[3][i] = base->m[0][i] * v.x + base->m[1][i] * v.y + base->m[2][i] * v.z + base->m[3][i];
     }
 	return result;
 }
 
-static inline mat4_s linealg_lookat(vec3_s* eye, vec3_s* center, vec3_s* up){
+static inline mat4_s linealg_lookat(vec3_s eye, vec3_s center, vec3_s up){
     vec3_s forward = vec3_sub(center,eye);
-    forward = vec3_normalize(&forward);
+    forward = vec3_normalize(forward);
 
-    vec3_s right = vec3_cross(up,&forward);
+    vec3_s right = vec3_cross(up,forward);
 
 
-    right = vec3_normalize(&right);
+    right = vec3_normalize(right);
     // vec3_negate(right);
 
-    vec3_s newUp = vec3_cross(&forward,&right);
+    vec3_s newUp = vec3_cross(forward,right);
 
     mat4_s result = init_mat4_id;
 
@@ -118,19 +118,19 @@ static inline mat4_s linealg_lookat(vec3_s* eye, vec3_s* center, vec3_s* up){
 
     result.m[0][2] = forward.x; result.m[1][2] = forward.y; result.m[2][2] = forward.z;
 
-    result.m[3][0] = -vec3_dot(&right, eye);
-    result.m[3][1] = -vec3_dot(&newUp, eye);
-    result.m[3][2] = -vec3_dot(&forward, eye);
+    result.m[3][0] = -vec3_dot(right, eye);
+    result.m[3][1] = -vec3_dot(newUp, eye);
+    result.m[3][2] = -vec3_dot(forward, eye);
 
     return result;
 }
 
-static inline mat4_s linealg_scale(mat4_s* base, vec3_s* v){
+static inline mat4_s linealg_scale(mat4_s* base, vec3_s v){
     mat4_s result = init_mat2_zero;
     for(int i = 0; i < 4;i++){
-        result.m[0][i] = base->m[0][i] * v->x;
-        result.m[1][i] = base->m[1][i] * v->y;
-        result.m[2][i] = base->m[2][i] * v->z;
+        result.m[0][i] = base->m[0][i] * v.x;
+        result.m[1][i] = base->m[1][i] * v.y;
+        result.m[2][i] = base->m[2][i] * v.z;
         result.m[3][i] = base->m[3][i];
     }
     return result;

@@ -144,10 +144,10 @@ FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos
     return result;
 }
 
-void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s* positionOffset){
+void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset){
     for(int j = 0; j < VERTEXES_PER_FACE;j++){
         // mesh->vertexData[j] = vec3_add(&mesh->vertexData[j], positionOffset);
-        vec3_s offseted = vec3_add(&mesh->vertexData[j],positionOffset);
+        vec3_s offseted = vec3_add(mesh->vertexData[j],positionOffset);
         // printf("%f %f %f\n", mesh->vertexData[j].x, mesh->vertexData[j].y, mesh->vertexData[j].z);
         memcpy(vertices + j*5, &offseted, sizeof(float) * 3);
         memcpy(vertices + j*5+3, &mesh->uvData[j], sizeof(float) * 2);
@@ -193,7 +193,7 @@ BlockMesh blockmesh_build(enum BlockID ID){
     return result;
 }
 
-void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s* positionOffset){
+void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset){
     // printf("%f %f %f\n", positionOffset->x, positionOffset->y, positionOffset->z);
     for(int i = 0; i < FaceOrder_End;i++){
         facemesh_copyVertexData(&mesh->faces[i], vertices + (i* VERTEXES_PER_FACE*FLOATS_PER_VERTEX),positionOffset);

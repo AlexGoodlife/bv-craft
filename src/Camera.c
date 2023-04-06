@@ -5,8 +5,8 @@
 void updateCamera(Camera* camera);
 
 mat4_s camera_getViewMat(Camera* camera){
-    vec3_s vDir = vec3_add(&camera->pos, &camera->front);
-    return linealg_lookat(&camera->pos,&vDir, &camera->up);
+    vec3_s vDir = vec3_add(camera->pos, camera->front);
+    return linealg_lookat(camera->pos,vDir, camera->up);
 }
 
 Camera camera_init(vec3_s pos,vec3_s front, vec3_s up, float yaw, float pitch, float fov, float sensitivity ,float speed){
@@ -36,22 +36,22 @@ void camera_processKeyboard(Camera* camera, enum CameraDirection direction, floa
     if (direction == FORWARD){
         vec3_s mult = vec3_cpy(camera->front);
         vec3_multiply_const(mult,velocity);
-        camera->pos = vec3_add(&camera->pos, &mult);
+        camera->pos = vec3_add(camera->pos, mult);
     }
     if (direction == BACKWARDS){
         vec3_s mult = vec3_cpy(camera->front);
         vec3_multiply_const(mult,velocity);
-        camera->pos = vec3_sub(&camera->pos, &mult);
+        camera->pos = vec3_sub(camera->pos, mult);
     }
     if (direction == LEFT){
         vec3_s mult = vec3_cpy(camera->right);
         vec3_multiply_const(mult,velocity);
-        camera->pos = vec3_sub(&camera->pos, &mult);
+        camera->pos = vec3_sub(camera->pos, mult);
     }
     if (direction == RIGHT){
         vec3_s mult = vec3_cpy(camera->right);
         vec3_multiply_const(mult,velocity);
-        camera->pos = vec3_add(&camera->pos, &mult);
+        camera->pos = vec3_add(camera->pos, mult);
     }
 }
 
@@ -87,12 +87,12 @@ void updateCamera(Camera* camera){
     front.z = -(sin(radians(camera->yaw)) * cos(radians(camera->pitch)));
 
 
-    camera->front = vec3_normalize(&front);
+    camera->front = vec3_normalize(front);
 
-    vec3_s temp_right = vec3_cross(&camera->worldUp,&camera->front);
-    camera->right = vec3_normalize(&temp_right);
+    vec3_s temp_right = vec3_cross(camera->worldUp,camera->front);
+    camera->right = vec3_normalize(temp_right);
     // printf("%f %f %f", camera->right.x, camera->right.y,camera->right.z);
-    vec3_s temp_up = vec3_cross(&camera->front,&camera->right);
-    camera->up = vec3_normalize(&temp_up);
+    vec3_s temp_up = vec3_cross(camera->front,camera->right);
+    camera->up = vec3_normalize(temp_up);
 
 }

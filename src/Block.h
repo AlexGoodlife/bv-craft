@@ -60,11 +60,11 @@ extern BlockMesh* all_blocks;
 BlockMesh blockmesh_build(enum BlockID ID);
 
 // void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices);
-void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s* positionOffset);
+void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset);
 
 void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
 
 void blockmesh_buildAllBlocks();
-void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s* positionOffset);
+void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset);
 
 #endif
