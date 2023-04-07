@@ -41,8 +41,8 @@ typedef struct{
 #define ivec2_cpy(vec) ivec2(vec.x,vec.y)
 #define ivec3_cpy(vec) ivec3(vec.x,vec.y,vec.z)
 
-#define vec_dot(v,u) _Generic((v), vec2_s*: vec2_dot, vec3_s*: vec3_dot, vec4_s*: vec4_dot)(v,u)
-#define vec_normalize(v) _Generic((v), vec2_s*: vec2_normalize, vec3_s*: vec3_normalize, vec4_s*: vec4_normalize)(v)
+#define vec_dot(v,u) _Generic((v), vec2_s: vec2_dot, vec3_s: vec3_dot, vec4_s: vec4_dot)(v,u)
+#define vec_normalize(v) _Generic((v), vec2_s: vec2_normalize, vec3_s: vec3_normalize, vec4_s: vec4_normalize)(v)
 
 #define vec3_multiply_const(vec, c) ({vec.x *= c; vec.y *= c; vec.z *= c;})
 
