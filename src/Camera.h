@@ -39,8 +39,8 @@ Camera camera_init(vec3_s pos,vec3_s front, vec3_s up, float yaw, float pitch, f
 
 Camera* camera_init_new(vec3_s pos,vec3_s front, vec3_s up, float yaw, float pitch, float fov, float sensitivity ,float speed);
 
-#define camera_init_default() camera_init(vec3(10.0f,0.0f,-3.0f), vec3(0.0f,0.0f,1.0f), vec3(0.0f,1.0f,0.0f), DEF_YAW, DEF_PITCH, DEF_FOV, DEF_SENSITIVITY, DEF_SPEED)
-#define camera_init_new_default() camera_init_new(vec3(0.0f,0.0f,-3.0f), vec3(0.0f,0.0f,1.0f), vec3(0.0f,1.0f,0.0f), DEF_YAW, DEF_PITCH, DEF_FOV, DEF_SENSITIVITY, DEF_SPEED)
+#define camera_init_default() camera_init(vec3(10.0f,32.0f,-3.0f), vec3(0.0f,0.0f,1.0f), vec3(0.0f,1.0f,0.0f), DEF_YAW, DEF_PITCH, DEF_FOV, DEF_SENSITIVITY, DEF_SPEED)
+#define camera_init_new_default() camera_init_new(vec3(0.0f,32.0f,-3.0f), vec3(0.0f,0.0f,1.0f), vec3(0.0f,1.0f,0.0f), DEF_YAW, DEF_PITCH, DEF_FOV, DEF_SENSITIVITY, DEF_SPEED)
 
 
 void camera_processKeyboard(Camera* camera, enum CameraDirection direction, float deltaTime);

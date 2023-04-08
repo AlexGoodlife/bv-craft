@@ -1,5 +1,4 @@
 #include <errno.h>
-#include <pthread.h>
 #include "World.h"
 #include "Chunk.h"
 #include "Shader.h"
@@ -10,8 +9,9 @@
 #include <stdlib.h> // malloc
 #include <string.h> //memcpy
                     
-#define N_THREADS 6
+#define N_THREADS 12
 
+#define MULTITHREAD 1
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
   float x_offset = (width/2)*CHUNK_WIDTH + CHUNK_WIDTH/2;
@@ -27,13 +27,20 @@ ivec2_s world_get_index(World *world, vec3_s pos){
   int x = pos_to_center.x / CHUNK_WIDTH;
   int y = pos_to_center.z / CHUNK_DEPTH;
   return ivec2(x, y);
-  //return INDEX2D(x, y, world->map_width);
 }
 
 void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
     shader_use(shader);
+    uint32_t chunks_size = world->map_height * world->map_width;
+    for(int i = 0; i < chunks_size;i++){
+      if(world->chunk_map[i] != NULL && world->chunk_map[i]->is_updated && !world->chunk_map[i]->is_prepared){
+        chunk_prepare(world->chunk_map[i]);
+      }
+    }
     for (int y = 0; y < world->map_height; y++) {
       for (int x = 0; x < world->map_width; x++)  {
+        if(world->chunk_map[INDEX2D(x, y, world->map_width)] == NULL) continue;
+        if(!world->chunk_map[INDEX2D(x, y, world->map_width)]->is_prepared) continue;
         mat4_s model = init_mat4_id;
         vec3_s translate = vec3(x * CHUNK_WIDTH, 0.0f, y * CHUNK_DEPTH);
         vec3_s translate_add = vec3_add(translate, world->bottom_left_offset);
@@ -64,11 +71,12 @@ World *world_init(Chunk **chunk_map, uint32_t map_width, uint32_t map_height, ve
   uint32_t chunks_size = map_width * map_height;
   for(int i = 0; i < chunks_size;i++){
     chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
-    chunk_prepare(result->chunk_map[i]);
+    // chunk_prepare(result->chunk_map[i]);
   }
 
   result->bottom_left_offset = calculate_bottom_left(center_pos, result->map_width,result->map_height);
   LOG_VEC3(result->bottom_left_offset);
+  result->throttle_max = 4;
   
   return result;
 }
@@ -76,7 +84,7 @@ World *world_init(Chunk **chunk_map, uint32_t map_width, uint32_t map_height, ve
 void world_destroy(World *world) {
   for (uint32_t y = 0; y < world->map_height; y++) {
     for (uint32_t x = 0; x < world->map_width; x++) {
-      chunk_destroy(world->chunk_map[y * world->map_width + x]);
+      chunk_destroy(&world->chunk_map[y * world->map_width + x]);
     }
   }
   free(world);
@@ -154,30 +162,38 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   vec3_s new_bot_left = calculate_bottom_left(new_pos, world->map_width,world->map_height);
   ivec2_s center_offset = ivec2_sub(world->center_index, new_index);
 
+
+  uint32_t width = world->map_width;
+  uint32_t height = world->map_height;
   int chunks_size = world->map_width*world->map_height;
   Chunk* old_chunks[chunks_size];
-  memcpy(old_chunks, world->chunk_map, sizeof(Chunk*)* chunks_size);
-  
-  memset(world->chunk_map,0, sizeof(Chunk*)*world->map_width*world->map_height);
 
-  // MOVE OLD CHUNKS TO NEW POSITIONS 
-  for(int y = 0; y < world->map_height;y++){
-    for(int x = 0; x < world->map_width;x++){
+  memcpy(old_chunks, world->chunk_map, sizeof(Chunk*)* chunks_size);
+
+  // memset(new_chunks,0, sizeof(Chunk*)*world->map_width*world->map_height);
+  
+  memset(world->chunk_map,0, sizeof(Chunk*)*chunks_size);
+
+
+  // MOVE OLD CHUNKS TO NEW POSITIONS AND DESTROY OLD ONES
+  for(int y = 0; y < height;y++){
+    for(int x = 0; x < width;x++){
       ivec2_s new_index = ivec2_add(ivec2(x,y), center_offset); 
-      if(IN_BOUNDS_2D(new_index.x, new_index.y, world->map_width, world->map_height)){
-        uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
-        uint32_t old_index_pos = INDEX2D(x, y, world->map_width);
+      if(IN_BOUNDS_2D(new_index.x, new_index.y, width, height)){
+        uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, width);
+        uint32_t old_index_pos = INDEX2D(x, y, width);
         //memcpy(world->chunk_map + new_index_pos, old_chunks + old_index_pos, sizeof(Chunk*));
         world->chunk_map[new_index_pos] = old_chunks[old_index_pos];    
+        world->chunk_map[new_index_pos]->is_updated = false;
       }
       else{
-        chunk_destroy(old_chunks[INDEX2D(x,y,world->map_width)]);
+         chunk_destroy(&old_chunks[INDEX2D(x,y,width)]);
       }
     }
 
   }
 
-  // GENERATE NEW CHUNKS AND DESTROY OLD ONES
+  // GENERATE NEW CHUNKS 
   for(int i = 0; i < chunks_size;i++){
     if(world->chunk_map[i] == NULL){
       uint32_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
@@ -186,15 +202,17 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
      // world->chunk_map[i] = chunk_build(test_map); 
     }
   }
-
-  
+  world->bottom_left_offset = new_bot_left;
+#if 0
+#if !MULTITHREAD 
   // // UPDATE THE CHUNKS
-  // for(int i = 0; i < chunks_size;i++){
-  //   chunk_update(world->chunk_map,world->map_width, world->map_height,i, world->chunk_map[i]);
-  //   chunk_prepare(world->chunk_map[i]);
-  // }
+  for(int i = 0; i < chunks_size;i++){
+    chunk_update(world->chunk_map, width, height, i , world->chunk_map[i]);
+    // chunk_update(world->chunk_map,world->map_width, world->map_height,i, world->chunk_map[i]);
+  }
+#endif
+#if MULTITHREAD
   errno = 0;
-  // pthread_mutex_init(&lock, NULL);
   pthread_t threads[N_THREADS];
   Update_Args args[N_THREADS];
   int n_chunks = ceil((double)(chunks_size) / N_THREADS);
@@ -203,8 +221,8 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
     int end = start + n_chunks;
     end = MIN(end, chunks_size);
     Update_Args arg ={
-      .map_width = world->map_width,
-      .map_height = world->map_height,
+      .map_width = width,
+      .map_height = height,
       .map = world->chunk_map,
       .end = end,
       .start = start
@@ -225,15 +243,23 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   for(int i = 0; i<  N_THREADS;i++){
     pthread_join(threads[i], NULL);
   }
+#endif
+#endif
 
-  for(int i = 0; i < chunks_size;i++){
-    chunk_prepare(world->chunk_map[i]);
-  }
 
-  world->bottom_left_offset = new_bot_left;
 }
 
-void world_update(World* world,vec3_s pos){
+void world_update_new_chunks(World* world){
+  int count = 0;
+  for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
+    if(!world->chunk_map[i]->is_updated){
+      chunk_update(world->chunk_map, world->map_width, world->map_height,i,world->chunk_map[i]);
+      count++;
+    }
+  }
+}
+
+void world_check_center(World* world, vec3_s pos){
   ivec2_s new_index = world_get_index(world, pos);
   ivec2_s new_index_offset = ivec2_sub(world->center_index, new_index);
   world->center_coord= vec3_sub(world->center_coord, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
@@ -246,5 +272,10 @@ void world_update(World* world,vec3_s pos){
     world_update_chunks(world, world->center_coord, new_index);
     // world_update_chunks(world, pos, new_index);
   }
-  
+
+}
+void world_update(World* world,vec3_s pos){
+   world_update_new_chunks(world); 
+   world_check_center(world, pos);
+
 }

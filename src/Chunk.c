@@ -74,6 +74,7 @@ void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t 
     //     chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
     // }
     chunk->mesh->faceCount = 0;
+    chunk->is_prepared = false;
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
         for(uint32_t y = 0; y < CHUNK_HEIGHT;y++){
             for(uint32_t x = 0; x < CHUNK_WIDTH;x++){
@@ -83,6 +84,7 @@ void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t 
             }
         }
     }
+    chunk->is_updated = true;
     // chunk->mesh->vertices = realloc(chunk->mesh->vertices,chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE*sizeof(float)); // THIS CRASHES UPDATE IDK WHY
 }
 
@@ -92,6 +94,8 @@ Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     result->map = calloc(CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT,sizeof(uint32_t));
     memcpy(result->map, map, sizeof(uint32_t) * CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH);
     result->mesh = chunckmesh_init();
+    result->is_updated = false;
+    result->is_prepared = false;
     return result;
 }
 
@@ -109,6 +113,8 @@ void chunk_prepare(Chunk* chunk){
 
     glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float)*3));
     glEnableVertexAttribArray(1);
+
+    chunk->is_prepared = true;
     
 }
 
@@ -121,9 +127,10 @@ void chunk_render(Chunk* chunk){
 }
 
 
-void chunk_destroy(Chunk* chunk){
-    chunkmesh_destroy(chunk->mesh);
-    free(chunk->map);
-    free(chunk);
+void chunk_destroy(Chunk** chunk){
+    chunkmesh_destroy((*chunk)->mesh);
+    free((*chunk)->map);
+    free((*chunk));
+    *chunk = NULL;
     
 }

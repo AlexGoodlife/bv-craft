@@ -22,6 +22,8 @@ typedef struct {
 typedef struct {
   ChunkMesh *mesh;
   uint32_t *map; // This is 3D
+  bool is_updated;
+  bool is_prepared;
 } Chunk;
 
 ChunkMesh *chunckmesh_init();
@@ -29,7 +31,7 @@ ChunkMesh *chunckmesh_init();
 // Chunk* chunk_build(uint32_t** map, uint32_t width,uint32_t height,uint32_t
 // depth);
 Chunk *chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH * CHUNK_HEIGHT]);
-void chunk_destroy(Chunk *chunk);
+void chunk_destroy(Chunk **chunk);
 void chunk_prepare(Chunk *chunk);
 // void chunk_update(Chunk* chunk);
 void chunk_update(Chunk **map, uint32_t map_width, uint32_t map_height,
