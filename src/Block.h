@@ -31,7 +31,7 @@ enum FaceOrder{
 };
 
 enum BlockID{
-    Gravel,
+    Gravel ,
     Stone,
     Grass,
     Block_count

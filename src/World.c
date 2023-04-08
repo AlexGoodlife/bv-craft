@@ -163,7 +163,7 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   // MOVE OLD CHUNKS TO NEW POSITIONS 
   for(int y = 0; y < world->map_height;y++){
     for(int x = 0; x < world->map_width;x++){
-      ivec2_s new_index = ivec2_sub(ivec2(x,y), center_offset); 
+      ivec2_s new_index = ivec2_add(ivec2(x,y), center_offset); 
       if(IN_BOUNDS_2D(new_index.x, new_index.y, world->map_width, world->map_height)){
         uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
         uint32_t old_index_pos = INDEX2D(x, y, world->map_width);
@@ -180,7 +180,10 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   // GENERATE NEW CHUNKS AND DESTROY OLD ONES
   for(int i = 0; i < chunks_size;i++){
     if(world->chunk_map[i] == NULL){
-     world->chunk_map[i] = chunk_build(test_map); 
+      uint32_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
+      world->chunk_map[i] = chunk_build(map);
+      free(map);
+     // world->chunk_map[i] = chunk_build(test_map); 
     }
   }
 
