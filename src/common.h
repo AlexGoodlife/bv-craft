@@ -7,6 +7,10 @@
 
 extern FILE *logFile;
 
+#define MIN(a, b) a < b ? a : b
+
+#define MAX(a, b) a > b ? a : b
+
 #define LOG(MESSAGE,...) do{fprintf(logFile, MESSAGE, ##__VA_ARGS__);}while(0)
 
 #define LOGLN(MESSAGE,...) do{fprintf(logFile, MESSAGE, ##__VA_ARGS__);fprintf(logFile, "\n");}while(0)

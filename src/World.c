@@ -9,7 +9,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> //memcpy
                     
-#define N_THREADS 8
+#define N_THREADS 6
 
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
@@ -130,13 +130,12 @@ typedef struct{
 #define LOG_ARGS(args) LOG("map: %p, width: %d, height: %d, start: %d, end: %d\n", args.map, args.map_width, args.map_height, args.start, args.end);
 
 pthread_mutex_t lock;
-//TODO, SPLIT CHUNK UPDATING INTO SEPERATE "CHUNKS"
+
 static void* world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
   Update_Args logger = *arguments;
 
   for(int i = arguments->start; i < arguments->end; i++){
-    // pthread_mutex_lock(&lock);
     chunk_update(
       arguments->map,
       arguments->map_width,
@@ -144,9 +143,7 @@ static void* world_update_threads(void* args){
       i,
       arguments->map[i]
     );
-    // pthread_mutex_unlock(&lock);
   }
-  //chunk_prepare(arguments->chunk);
   // pthread_exit(NULL);
   return NULL;
 }
@@ -193,13 +190,15 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   //   chunk_prepare(world->chunk_map[i]);
   // }
   errno = 0;
-  pthread_mutex_init(&lock, NULL);
+  // pthread_mutex_init(&lock, NULL);
   pthread_t threads[N_THREADS];
   Update_Args args[N_THREADS];
-  int n_chunks = (chunks_size) / N_THREADS;
+  int n_chunks = ceil((double)(chunks_size) / N_THREADS);
+  printf("%d\n", n_chunks);
   for(int i = 0; i < N_THREADS;i++){
     int start = i*n_chunks;
-    int end = start + n_chunks+1;
+    int end = start + n_chunks;
+    end = MIN(end, chunks_size);
     Update_Args arg ={
       .map_width = world->map_width,
       .map_height = world->map_height,
@@ -217,6 +216,7 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
     if(err){
       ERROR("PTHREAD ERROR\n");
     }
+    if(end == chunks_size)break;
   }
 
   for(int i = 0; i<  N_THREADS;i++){
