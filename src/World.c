@@ -9,7 +9,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> //memcpy
                     
-#define N_THREADS 2
+#define N_THREADS 8
 
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
@@ -122,27 +122,30 @@ typedef struct{
   Chunk** map;
   uint32_t map_width;
   uint32_t map_height;
-  uint32_t index;
-  Chunk* chunk;
+  int start;
+  int end;
 
 }Update_Args;
 
-#define LOG_ARGS(args) LOG("map: %p, width: %d, height: %d, index: %d, chunk: %p\n", args.map, args.map_width, args.map_height, args.index, args.chunk);
+#define LOG_ARGS(args) LOG("map: %p, width: %d, height: %d, start: %d, end: %d\n", args.map, args.map_width, args.map_height, args.start, args.end);
 
 pthread_mutex_t lock;
-static void* update_chunks(void* args){
+//TODO, SPLIT CHUNK UPDATING INTO SEPERATE "CHUNKS"
+static void* world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
   Update_Args logger = *arguments;
-  LOG_ARGS(logger);
-  // pthread_mutex_lock(&lock);
-  chunk_update(
-    arguments->map,
-    arguments->map_width,
-    arguments->map_height,
-    arguments->index,
-    arguments->chunk
-  );
-  // pthread_mutex_unlock(&lock)
+
+  for(int i = arguments->start; i < arguments->end; i++){
+    // pthread_mutex_lock(&lock);
+    chunk_update(
+      arguments->map,
+      arguments->map_width,
+      arguments->map_height,
+      i,
+      arguments->map[i]
+    );
+    // pthread_mutex_unlock(&lock);
+  }
   //chunk_prepare(arguments->chunk);
   // pthread_exit(NULL);
   return NULL;
@@ -182,6 +185,7 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
      world->chunk_map[i] = chunk_build(test_map); 
     }
   }
+
   
   // // UPDATE THE CHUNKS
   // for(int i = 0; i < chunks_size;i++){
@@ -189,37 +193,40 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   //   chunk_prepare(world->chunk_map[i]);
   // }
   errno = 0;
-  for(int i = 0; i < chunks_size; i += N_THREADS){
-    pthread_t threads[N_THREADS];
-    Update_Args args[N_THREADS];
-    for(int j = 0; j < N_THREADS;j++){
-      uint32_t index = i + j;
-      Update_Args arg = {
-        .map = world->chunk_map,
-        .map_width = world->map_width,
-        .map_height = world->map_height,
-        .index = index,
-        .chunk = world->chunk_map[index]
-      };
-      LOG_ARGS(arg);
-      // memcpy(args + j, &arg, sizeof(Update_Args));
-      args[j] = arg;
-      int err = pthread_create(
-        threads + j,
-        NULL,
-        &update_chunks,
-        args + j
-      );
-      if(err){
-        ERROR("PTHREAD ERROR\n");
-      }
-    }
-
-    for(int t = 0; t < N_THREADS;t++){
-      pthread_join(threads[t] , NULL);
-      chunk_prepare(world->chunk_map[i + t]);
+  pthread_mutex_init(&lock, NULL);
+  pthread_t threads[N_THREADS];
+  Update_Args args[N_THREADS];
+  int n_chunks = (chunks_size) / N_THREADS;
+  for(int i = 0; i < N_THREADS;i++){
+    int start = i*n_chunks;
+    int end = start + n_chunks+1;
+    Update_Args arg ={
+      .map_width = world->map_width,
+      .map_height = world->map_height,
+      .map = world->chunk_map,
+      .end = end,
+      .start = start
+    };
+    args[i] = arg;
+    int err = pthread_create(
+      threads + i,
+      NULL,
+      &world_update_threads,
+      args + i
+    );
+    if(err){
+      ERROR("PTHREAD ERROR\n");
     }
   }
+
+  for(int i = 0; i<  N_THREADS;i++){
+    pthread_join(threads[i], NULL);
+  }
+
+  for(int i = 0; i < chunks_size;i++){
+    chunk_prepare(world->chunk_map[i]);
+  }
+
   world->bottom_left_offset = new_bot_left;
 }
 

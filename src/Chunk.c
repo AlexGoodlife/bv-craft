@@ -16,6 +16,13 @@ ChunkMesh* chunckmesh_init(){
     return result;
 }
 
+void chunkmesh_destroy(ChunkMesh* mesh){
+    glDeleteVertexArrays(1, &mesh->VAO);
+    glDeleteBuffers(1, &mesh->VBO);
+    free(mesh->vertices);
+    free(mesh);
+}
+
 static ivec3_s check_directions[FaceOrder_End] = 
 {
     ivec3(0,0,-1), // FRONT
@@ -40,8 +47,9 @@ bool check_neighbouring_chunks(Chunk** map, uint32_t map_width, uint32_t map_hei
 
 bool check_face_directions(Chunk** map, uint32_t map_width, uint32_t map_height, Chunk* chunk, uint32_t chunk_pos, enum FaceOrder face,uint32_t x,uint32_t y,uint32_t z){
     ivec3_s check_vec = ivec3_add(check_directions[face], ivec3(x,y,z));
-    if(!CHUNK_IN_BOUNDS(check_vec.x,check_vec.y,check_vec.z))
+    if(!CHUNK_IN_BOUNDS(check_vec.x,check_vec.y,check_vec.z)){
         return check_neighbouring_chunks(map,map_width,map_height,chunk,chunk_pos,face,check_vec.x,check_vec.y,check_vec.z);
+    }
     return chunk->map[INDEXCHUNK(check_vec.x, check_vec.y, check_vec.z)] == 0;
 }  
 
@@ -114,10 +122,7 @@ void chunk_render(Chunk* chunk){
 
 
 void chunk_destroy(Chunk* chunk){
-    glDeleteVertexArrays(1, &chunk->mesh->VAO);
-    glDeleteBuffers(1, &chunk->mesh->VBO);
-    free(chunk->mesh->vertices);
-    free(chunk->mesh);
+    chunkmesh_destroy(chunk->mesh);
     free(chunk->map);
     free(chunk);
     
