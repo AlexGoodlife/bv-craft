@@ -33,4 +33,8 @@ extern FILE *logFile;
 
 #define IN_BOUNDS_3D(x,y,z,width,height,depth) IN_BOUNDS_2D(x,y,width,height) && ((z) >= 0 && (z) < depth)
 
+static inline int random_number(int lower, int upper){
+    return (rand() % (upper-lower+1)) + lower;
+}
+
 #endif

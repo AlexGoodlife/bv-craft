@@ -4,6 +4,7 @@
 #include "Chunk.h"
 #include "Shader.h"
 #include "common.h"
+#include "worldgen.h"
 #include "math/mat.h"
 #include "math/vec.h"
 #include <stdlib.h> // malloc
@@ -194,7 +195,6 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   pthread_t threads[N_THREADS];
   Update_Args args[N_THREADS];
   int n_chunks = ceil((double)(chunks_size) / N_THREADS);
-  printf("%d\n", n_chunks);
   for(int i = 0; i < N_THREADS;i++){
     int start = i*n_chunks;
     int end = start + n_chunks;
