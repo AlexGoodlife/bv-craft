@@ -83,9 +83,13 @@ void *threadpool_func(void *arg) {
     pthread_mutex_lock(&pool->lock);
     pool->active_threads--;
     printf("Im done: %d remaining\n", pool->active_threads);
+    // if(queue_getSize(pool->q) > 0){
+    //   pthread_cond_signal(&pool->cond);
+    // }
     // printf("I CALL: ACTIVE %d\n", pool->num_tasks);
     // printf("ACTIVE THREADS: %d\n", pool->active_threads);
       // printf("I CALL IT TO STOP WAITING\n");
+    // if(pool->active_threads == 0)
     pthread_cond_signal(&pool->wait_cond);
     pthread_mutex_unlock(&pool->lock);
   }

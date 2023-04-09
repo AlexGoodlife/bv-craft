@@ -9,7 +9,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> //memcpy
                     
-#define NUMBER_OF_THREADS 2
+#define NUMBER_OF_THREADS 8
 
 #define MULTITHREAD 1
 
@@ -225,7 +225,9 @@ void world_update_new_chunks(World* world, Threadpool* pool){
   Update_Args args[NUMBER_OF_THREADS];
   Task *tasks[NUMBER_OF_THREADS];
   int n_chunks = ceil((double)(chunks_size) / NUMBER_OF_THREADS);
+  int used_args = 0;
   for(int i = 0; i < NUMBER_OF_THREADS;i++){
+    used_args++;
     int start = i*n_chunks;
     int end = start + n_chunks;
     end = MIN(end, chunks_size);
@@ -257,7 +259,7 @@ void world_update_new_chunks(World* world, Threadpool* pool){
     if(end == chunks_size)break;
   }
   threadpool_wait(pool);
-  for(int i = 0; i < NUMBER_OF_THREADS;i++){
+  for(int i = 0; i < used_args;i++){
     free(tasks[i]);
   }
   // for(int i = 0; i<  NUMBER_OF_THREADS;i++){
