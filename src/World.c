@@ -59,17 +59,21 @@ void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
   }
 }
 
-World *world_init(Chunk **chunk_map, uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
+World *world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
   World *result = malloc(sizeof(World));
   result->chunk_map = malloc(sizeof(Chunk *) * map_height * map_width);
-  result->chunk_map = memcpy(result->chunk_map, chunk_map,
-                             sizeof(Chunk *) * map_height * map_width);
+  // result->chunk_map = memcpy(result->chunk_map, chunk_map,
+  //                            sizeof(Chunk *) * map_height * map_width);
   // LOG("WORLD MEMCPY");
   result->map_height = map_height;
   result->map_width = map_width;
   result->center_index = ivec2(map_width/2, map_height/2);
   result->center_coord = center_pos;
   uint32_t chunks_size = map_width * map_height;
+  for(int i = 0; i < chunks_size;i++){
+    result->chunk_map[i] = chunk_build(test_map);  
+  }
+
   for(int i = 0; i < chunks_size;i++){
     chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
   }

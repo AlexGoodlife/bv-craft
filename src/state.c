@@ -15,6 +15,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void mouse_button_callback(GLFWwindow *window, int button, int action,int mods);
+void init_test_map();
 State *state;
 Shader_id shader;
 
@@ -82,6 +83,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
 
   logFile = fopen("log.txt", "w");
   state->thread_pool = threadpool_init(N_THREADS); 
+  init_test_map();
 
   return true;
 }
@@ -120,7 +122,6 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) 
       uint32_t block_id = world->chunk_map[world_index]->map[chunk_index];
       LOG("ID: %d\n", block_id);
       if(block_id != 0){
-        // LOG("CHUNK_COORD_CLICK: x: %d y: %d z:%d\n", chunk_coord.x, chunk_coord.y, chunk_coord.z);
         chunk->map[chunk_index] = 0; 
         chunk_update(world->chunk_map, world->map_width, world->map_height,world_index, chunk);
         chunk_prepare(chunk);
@@ -189,19 +190,37 @@ void displayFPS(float deltaTime, float lastFrame) {
 
   if (lastFrame - waitTime >= 1.0) {
 
-    // double fps = (double)nbFrames;
-    // char buff[254];
-
-    // sprintf(buff, "%s [%lf FPS]", state->windowTitle, fps);
-
-    // glfwSetWindowTitle(state->window,buff);
     char buff[254];
     sprintf(buff, "%s [%.4f ms]", state->windowTitle, deltaTime * 1000);
 
     glfwSetWindowTitle(state->window, buff);
-    // nbFrames = 0;
     waitTime = lastFrame;
   }
+}
+
+void init_test_map(){
+
+  test_map = malloc(sizeof(uint8_t) * CHUNK_DEPTH * CHUNK_WIDTH * CHUNK_HEIGHT);
+  for (uint32_t z = 0; z < CHUNK_DEPTH; z++) {
+    for (uint32_t y = 0; y < CHUNK_HEIGHT; y++) {
+      for (uint32_t x = 0; x < CHUNK_WIDTH; x++) {
+        test_map[z * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + x] = 3;
+      }
+    }
+  }
+
+  test_map[0 + 0 + 0] = 0;
+
+  for (int i = 0; i < CHUNK_HEIGHT; i++) {
+    test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + i * CHUNK_WIDTH +
+             CHUNK_WIDTH / 2] = 0;
+  }
+
+  test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + 3 * CHUNK_WIDTH +
+           CHUNK_WIDTH / 2 - 1] = 0;
+
+  test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT +
+           (CHUNK_HEIGHT - 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2] = 1;
 }
 
 GLuint loadTexture(const char *path) {
@@ -239,3 +258,5 @@ GLuint loadTexture(const char *path) {
 
   return textureID;
 }
+
+
