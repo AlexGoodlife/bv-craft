@@ -10,6 +10,7 @@
 #include <string.h> //memcpy
                     
 #define NUMBER_OF_THREADS 8
+#define TICK_THROTTLE 2
 
 #define MULTITHREAD 1
 
@@ -71,12 +72,11 @@ World *world_init(Chunk **chunk_map, uint32_t map_width, uint32_t map_height, ve
   uint32_t chunks_size = map_width * map_height;
   for(int i = 0; i < chunks_size;i++){
     chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
-    // chunk_prepare(result->chunk_map[i]);
   }
 
   result->bottom_left_offset = calculate_bottom_left(center_pos, result->map_width,result->map_height);
   LOG_VEC3(result->bottom_left_offset);
-  result->throttle_max = 4;
+  result->throttle_max = TICK_THROTTLE;
   
   return result;
 }
@@ -143,7 +143,6 @@ pthread_mutex_t lock;
 
 static void world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
-  Update_Args logger = *arguments;
   int count = 0;
   for(int i = arguments->start; i < arguments->end && count < arguments->throttle_max; i++){
     if(!arguments->map[i]->is_updated){
@@ -195,10 +194,10 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   // GENERATE NEW CHUNKS 
   for(int i = 0; i < chunks_size;i++){
     if(world->chunk_map[i] == NULL){
-      // uint8_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
-      // world->chunk_map[i] = chunk_build(map);
-      // free(map);
-     world->chunk_map[i] = chunk_build(test_map); 
+      uint8_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
+      world->chunk_map[i] = chunk_build(map);
+      free(map);
+     // world->chunk_map[i] = chunk_build(test_map); 
     }
   }
 }

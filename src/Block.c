@@ -128,14 +128,6 @@ static vec2_s RightFaceUV[] = {
     vec2(1.0f,0.0f), // Bottom Right
 };
 
-
-// FaceMesh facemesh_build(vec3_s* vertexData, uint32_t* indiceData, vec2_s* uvData){
-//     FaceMesh result;
-//     memcpy(result.vertexData, vertexData, sizeof(vec3_s) * VERTEXES_PER_FACE);
-//     memcpy(result.uvData, uvData, sizeof(vec2_s) * VERTEXES_PER_FACE);
-//     memcpy(result.indicesData, indiceData, sizeof(uint32_t) * FACE_INDICES_COUNT);
-//     return result;
-// }
 FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos_offset){
     FaceMesh result;
     result.texture_pos_offset = texture_pos_offset;
@@ -146,9 +138,7 @@ FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos
 
 void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset){
     for(int j = 0; j < VERTEXES_PER_FACE;j++){
-        // mesh->vertexData[j] = vec3_add(&mesh->vertexData[j], positionOffset);
         vec3_s offseted = vec3_add(mesh->vertexData[j],positionOffset);
-        // printf("%f %f %f\n", mesh->vertexData[j].x, mesh->vertexData[j].y, mesh->vertexData[j].z);
         memcpy(vertices + j*5, &offseted, sizeof(float) * 3);
         memcpy(vertices + j*5+3, &mesh->uvData[j], sizeof(float) * 2);
     }
@@ -194,7 +184,6 @@ BlockMesh blockmesh_build(enum BlockID ID){
 }
 
 void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset){
-    // printf("%f %f %f\n", positionOffset->x, positionOffset->y, positionOffset->z);
     for(int i = 0; i < FaceOrder_End;i++){
         facemesh_copyVertexData(&mesh->faces[i], vertices + (i* VERTEXES_PER_FACE*FLOATS_PER_VERTEX),positionOffset);
     }

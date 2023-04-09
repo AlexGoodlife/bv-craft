@@ -9,8 +9,8 @@
 ChunkMesh* chunckmesh_init(){
     ChunkMesh* result = malloc(sizeof(ChunkMesh));
     result->faceCount = 0;
-    // result->vertices= calloc((CHUNK_WIDTH*CHUNK_DEPTH*CHUNK_HEIGHT)*FLOATS_PER_CUBE,sizeof(float));
-    result->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
+    // result->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
+    result->vertices = NULL;
     glGenVertexArrays(1,&result->VAO);
     glGenBuffers(1, &result->VBO);
     return result;
@@ -69,9 +69,8 @@ void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,C
 }
 
 void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t chunk_pos,Chunk* chunk){
-    if(!chunk->mesh->vertices){
-        chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
-    }
+    free(chunk->mesh->vertices); // I Think I can remove this
+    chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
     chunk->mesh->faceCount = 0;
     chunk->is_prepared = false;
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
