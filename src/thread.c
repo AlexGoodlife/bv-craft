@@ -3,20 +3,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-Threadpool* threadpool_init(int n_threads, int n_tasks){
+Task* task_create( void (*func)(void *), void *arg) {
+  Task* result = malloc(sizeof(Task));
+  result->func = func;
+  result->arg = arg;
+  return result;
+}
+
+void* threadpool_func(void*);
+
+Threadpool* threadpool_init(int n_threads){
   Threadpool* result = malloc(sizeof(Threadpool));
   pthread_mutex_init(&result->lock, NULL);
   pthread_cond_init(&result->cond, NULL);
+  pthread_cond_init(&result->wait_cond, NULL);
   result->n_threads = n_threads;
-  result->n_tasks = n_tasks;
-  result->num_tasks = 0;
-  result->task_idx = 0;
-  result->tail = 0;
+  result->q = queue_create();
+  result->active_threads = 0;
   result->quit = false;
   result->threads = malloc(sizeof(pthread_t)*n_threads);
-  result->tasks = malloc(sizeof(Task) * n_tasks);
   for (int i = 0; i < n_threads; i++) {
-    pthread_create(result->threads + i, NULL, threadpool_init_func, result);
+    pthread_create(result->threads + i, NULL, &threadpool_func, result);
   }
   return result;
 }
@@ -31,52 +38,55 @@ void threadpool_destroy(Threadpool** pool){
   }
   pthread_mutex_destroy(&(*pool)->lock);
   pthread_cond_destroy(&(*pool)->cond);
-  free((*pool)->tasks);
+  // free((*pool)->tasks);
+  queue_destroy(&(*pool)->q);
   free((*pool)->threads);
   free(*pool);
   *pool = NULL;
 }
 
-void threadpool_add_task(Threadpool *pool, void (*func)(void *), void *arg) {
+void threadpool_add_task(Threadpool *pool,Task* task) {
   pthread_mutex_lock(&pool->lock);
-  while (pool->num_tasks == pool->n_tasks) {
+
+  while (pool->active_threads == pool->n_threads) {
     pthread_cond_wait(&pool->cond, &pool->lock);
   }
-  pool->tasks[pool->num_tasks].func = func;
-  pool->tasks[pool->num_tasks].arg = arg;
-  pool->tail++;
-  pool->tail %= pool->n_tasks;
-  pool->num_tasks++;
+
+  queue_enqueue(pool->q, task);
+  pool->active_threads++;
+
   pthread_cond_signal(&pool->cond);
   pthread_mutex_unlock(&pool->lock);
 }
 
 // First argument should be pointer to Threadpool itself
-void *threadpool_init_func(void *arg) {
+void *threadpool_func(void *arg) {
   Threadpool* pool = arg;
-  while (!pool->quit) {
+  while (1) {
     pthread_mutex_lock(&pool->lock);
-    while (!pool->quit && pool->num_tasks == 0) {
+    while (!pool->quit &&  queue_getSize(pool->q) == 0) {
+      printf("I AM WAITING FOR INSTRUCTIONS\n");
       pthread_cond_wait(&pool->cond, &pool->lock);
     }
     if(pool->quit){
       pthread_mutex_unlock(&pool->lock);
       break;
     }
-    Task task = pool->tasks[pool->task_idx];
-    pool->task_idx = (pool->task_idx + 1) % pool->n_tasks;
-    //pthread_cond_signal(&pool->cond);
+    printf("Task is being performed\n");
+    Task *task = queue_dequeue(pool->q);
+    if(!task) printf("NULL\n");
+    
     pthread_mutex_unlock(&pool->lock);
 
-    task.func(task.arg);
-    
+    task->func(task->arg);
+
     pthread_mutex_lock(&pool->lock);
-    pool->num_tasks--;
+    pool->active_threads--;
+    printf("Im done: %d remaining\n", pool->active_threads);
     // printf("I CALL: ACTIVE %d\n", pool->num_tasks);
-    if (pool->num_tasks == 0) {
-      printf("I CALL IT TO STOP WAITING\n");
-      pthread_cond_signal(&pool->cond);
-    }
+    // printf("ACTIVE THREADS: %d\n", pool->active_threads);
+      // printf("I CALL IT TO STOP WAITING\n");
+    pthread_cond_signal(&pool->wait_cond);
     pthread_mutex_unlock(&pool->lock);
   }
   return NULL;
@@ -84,9 +94,10 @@ void *threadpool_init_func(void *arg) {
 
 void threadpool_wait(Threadpool *pool) {
   pthread_mutex_lock(&pool->lock);
-  while (pool->num_tasks > 0) {
+  while (!pool->quit && pool->active_threads > 0) {
     printf("I ACTUALLY WAIT\n");
-    pthread_cond_wait(&pool->cond, &pool->lock);
+    pthread_cond_wait(&pool->wait_cond, &pool->lock);
   }
+  printf("Stopped waiting\n");
   pthread_mutex_unlock(&pool->lock);
 }

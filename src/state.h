@@ -15,7 +15,7 @@
 #define VSYNC 0
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
-#define N_THREADS 12
+#define N_THREADS 8
 #define N_TASKS 100
 
 #define BACKGROUND_COLOR_R 0.2f

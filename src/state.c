@@ -81,7 +81,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   blockmesh_buildAllBlocks();
 
   logFile = fopen("log.txt", "w");
-  state->thread_pool = threadpool_init(N_THREADS, N_TASKS); 
+  state->thread_pool = threadpool_init(N_THREADS); 
 
   return true;
 }
