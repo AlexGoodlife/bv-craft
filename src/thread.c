@@ -38,7 +38,6 @@ void threadpool_destroy(Threadpool** pool){
   }
   pthread_mutex_destroy(&(*pool)->lock);
   pthread_cond_destroy(&(*pool)->cond);
-  // free((*pool)->tasks);
   queue_destroy(&(*pool)->q);
   free((*pool)->threads);
   free(*pool);
@@ -65,16 +64,13 @@ void *threadpool_func(void *arg) {
   while (1) {
     pthread_mutex_lock(&pool->lock);
     while (!pool->quit &&  queue_getSize(pool->q) == 0) {
-      printf("I AM WAITING FOR INSTRUCTIONS\n");
       pthread_cond_wait(&pool->cond, &pool->lock);
     }
     if(pool->quit){
       pthread_mutex_unlock(&pool->lock);
       break;
     }
-    printf("Task is being performed\n");
     Task *task = queue_dequeue(pool->q);
-    if(!task) printf("NULL\n");
     
     pthread_mutex_unlock(&pool->lock);
 
@@ -82,14 +78,6 @@ void *threadpool_func(void *arg) {
 
     pthread_mutex_lock(&pool->lock);
     pool->active_threads--;
-    printf("Im done: %d remaining\n", pool->active_threads);
-    // if(queue_getSize(pool->q) > 0){
-    //   pthread_cond_signal(&pool->cond);
-    // }
-    // printf("I CALL: ACTIVE %d\n", pool->num_tasks);
-    // printf("ACTIVE THREADS: %d\n", pool->active_threads);
-      // printf("I CALL IT TO STOP WAITING\n");
-    // if(pool->active_threads == 0)
     pthread_cond_signal(&pool->wait_cond);
     pthread_mutex_unlock(&pool->lock);
   }
@@ -99,9 +87,7 @@ void *threadpool_func(void *arg) {
 void threadpool_wait(Threadpool *pool) {
   pthread_mutex_lock(&pool->lock);
   while (!pool->quit && pool->active_threads > 0) {
-    printf("I ACTUALLY WAIT\n");
     pthread_cond_wait(&pool->wait_cond, &pool->lock);
   }
-  printf("Stopped waiting\n");
   pthread_mutex_unlock(&pool->lock);
 }

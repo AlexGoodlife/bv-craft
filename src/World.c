@@ -143,8 +143,6 @@ pthread_mutex_t lock;
 
 static void world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
-  printf("start : %d\n", arguments->start);
-  printf(" end: %d\n", arguments->end);
   Update_Args logger = *arguments;
   int count = 0;
   for(int i = arguments->start; i < arguments->end && count < arguments->throttle_max; i++){
@@ -159,9 +157,6 @@ static void world_update_threads(void* args){
       count++;
     }
   }
-  // printf("I finish work\n");
-  // pthread_exit(NULL);
-  // return NULL;
 }
 
 
@@ -200,10 +195,10 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   // GENERATE NEW CHUNKS 
   for(int i = 0; i < chunks_size;i++){
     if(world->chunk_map[i] == NULL){
-      uint32_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
-      world->chunk_map[i] = chunk_build(map);
-      free(map);
-     // world->chunk_map[i] = chunk_build(test_map); 
+      // uint8_t* map = worldgen_random(CHUNK_WIDTH, CHUNK_HEIGHT,CHUNK_DEPTH);
+      // world->chunk_map[i] = chunk_build(map);
+      // free(map);
+     world->chunk_map[i] = chunk_build(test_map); 
     }
   }
 }
@@ -223,7 +218,8 @@ void world_update_new_chunks(World* world, Threadpool* pool){
   uint32_t chunks_size = world->map_height*world->map_width;
   // pthread_t threads[NUMBER_OF_THREADS];
   Update_Args args[NUMBER_OF_THREADS];
-  Task *tasks[NUMBER_OF_THREADS];
+  // Task *tasks[NUMBER_OF_THREADS];
+  Task tasks[NUMBER_OF_THREADS];
   int n_chunks = ceil((double)(chunks_size) / NUMBER_OF_THREADS);
   int used_args = 0;
   for(int i = 0; i < NUMBER_OF_THREADS;i++){
@@ -240,30 +236,18 @@ void world_update_new_chunks(World* world, Threadpool* pool){
       .throttle_max = world->throttle_max,
     };
     args[i] = arg;
-    Update_Args* copy = malloc(sizeof(Update_Args));
-    *copy = arg;
-    // memcpy(copy, &arg, sizeof(Update_Args));
-    Task *task = task_create(&world_update_threads, copy);
-    tasks[i] = task;
-    // threadpool_add_task(pool, &world_update_threads, args + i);
-    threadpool_add_task(pool,task);
-    // int err = pthread_create(
-    //   threads + i,
-    //   NULL,
-    //   &world_update_threads,
-    //   args + i
-    // );
-    // if(err){
-    //   ERROR("PTHREAD ERROR\n");
-    // }
+    // Update_Args* copy = malloc(sizeof(Update_Args));
+    // *copy = arg;
+    // Task *task = task_create(&world_update_threads, args + i);
+    tasks[i].arg = args + i;
+    tasks[i].func = &world_update_threads;
+    // tasks[i] = task;
+    threadpool_add_task(pool,tasks + i);
     if(end == chunks_size)break;
   }
   threadpool_wait(pool);
-  for(int i = 0; i < used_args;i++){
-    free(tasks[i]);
-  }
-  // for(int i = 0; i<  NUMBER_OF_THREADS;i++){
-  //   pthread_join(threads[i], NULL);
+  // for(int i = 0; i < used_args;i++){
+  //   free(tasks[i]);
   // }
 #endif
 }

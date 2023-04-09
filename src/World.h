@@ -9,7 +9,7 @@
 
 #define RAYCAST_AMOUNT 5
 
-extern uint32_t *test_map; // TEMPORARY TEST_MAP 
+extern uint8_t *test_map; // TEMPORARY TEST_MAP 
 
 typedef struct{
     Chunk** chunk_map;    // THIS IS TWO DIMENSIONAL FOR NOW

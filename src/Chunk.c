@@ -69,10 +69,9 @@ void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,C
 }
 
 void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t chunk_pos,Chunk* chunk){
-    // if(chunk->mesh->vertices){
-    //     free(chunk->mesh->vertices);
-    //     chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
-    // }
+    if(!chunk->mesh->vertices){
+        chunk->mesh->vertices = calloc((((CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH)/2) * FLOATS_PER_CUBE), sizeof(float));
+    }
     chunk->mesh->faceCount = 0;
     chunk->is_prepared = false;
     for(uint32_t z = 0; z < CHUNK_DEPTH; z++){
@@ -89,10 +88,10 @@ void chunk_update(Chunk** map, uint32_t map_width, uint32_t map_height,uint32_t 
 }
 
 
-Chunk* chunk_build(uint32_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
+Chunk* chunk_build(uint8_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     Chunk* result = malloc(sizeof(Chunk));
-    result->map = calloc(CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT,sizeof(uint32_t));
-    memcpy(result->map, map, sizeof(uint32_t) * CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH);
+    result->map = calloc(CHUNK_DEPTH*CHUNK_WIDTH*CHUNK_HEIGHT,sizeof(uint8_t));
+    memcpy(result->map, map, sizeof(uint8_t) * CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_DEPTH);
     result->mesh = chunckmesh_init();
     result->is_updated = false;
     result->is_prepared = false;
@@ -115,6 +114,8 @@ void chunk_prepare(Chunk* chunk){
     glEnableVertexAttribArray(1);
 
     chunk->is_prepared = true;
+    free(chunk->mesh->vertices);
+    chunk->mesh->vertices= NULL;
     
 }
 
