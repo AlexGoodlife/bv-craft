@@ -235,19 +235,12 @@ void world_update_new_chunks(World* world, Threadpool* pool){
       .throttle_max = world->throttle_max,
     };
     args[i] = arg;
-    // Update_Args* copy = malloc(sizeof(Update_Args));
-    // *copy = arg;
-    // Task *task = task_create(&world_update_threads, args + i);
     tasks[i].arg = args + i;
     tasks[i].func = &world_update_threads;
-    // tasks[i] = task;
     threadpool_add_task(pool,tasks + i);
     if(end == chunks_size)break;
   }
   threadpool_wait(pool);
-  // for(int i = 0; i < used_args;i++){
-  //   free(tasks[i]);
-  // }
 #endif
 }
 
