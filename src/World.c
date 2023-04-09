@@ -9,7 +9,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> //memcpy
                     
-#define N_THREADS 12
+#define NUMBER_OF_THREADS 2
 
 #define MULTITHREAD 1
 
@@ -133,6 +133,7 @@ typedef struct{
   uint32_t map_height;
   int start;
   int end;
+  int throttle_max;
 
 }Update_Args;
 
@@ -140,28 +141,34 @@ typedef struct{
 
 pthread_mutex_t lock;
 
-static void* world_update_threads(void* args){
+static void world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
+  printf("start : %d\n", arguments->start);
+  printf(" end: %d\n", arguments->end);
   Update_Args logger = *arguments;
-
-  for(int i = arguments->start; i < arguments->end; i++){
-    chunk_update(
-      arguments->map,
-      arguments->map_width,
-      arguments->map_height,
-      i,
-      arguments->map[i]
-    );
+  int count = 0;
+  for(int i = arguments->start; i < arguments->end && count < arguments->throttle_max; i++){
+    if(!arguments->map[i]->is_updated){
+      chunk_update(
+        arguments->map,
+        arguments->map_width,
+        arguments->map_height,
+        i,
+        arguments->map[i]
+      );
+      count++;
+    }
   }
+  printf("I finish work\n");
   // pthread_exit(NULL);
-  return NULL;
+  // return NULL;
 }
 
 
 void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   vec3_s new_bot_left = calculate_bottom_left(new_pos, world->map_width,world->map_height);
   ivec2_s center_offset = ivec2_sub(world->center_index, new_index);
-
+  world->bottom_left_offset = new_bot_left;
 
   uint32_t width = world->map_width;
   uint32_t height = world->map_height;
@@ -169,11 +176,8 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   Chunk* old_chunks[chunks_size];
 
   memcpy(old_chunks, world->chunk_map, sizeof(Chunk*)* chunks_size);
-
-  // memset(new_chunks,0, sizeof(Chunk*)*world->map_width*world->map_height);
   
   memset(world->chunk_map,0, sizeof(Chunk*)*chunks_size);
-
 
   // MOVE OLD CHUNKS TO NEW POSITIONS AND DESTROY OLD ONES
   for(int y = 0; y < height;y++){
@@ -202,54 +206,10 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
      // world->chunk_map[i] = chunk_build(test_map); 
     }
   }
-  world->bottom_left_offset = new_bot_left;
-#if 0
-#if !MULTITHREAD 
-  // // UPDATE THE CHUNKS
-  for(int i = 0; i < chunks_size;i++){
-    chunk_update(world->chunk_map, width, height, i , world->chunk_map[i]);
-    // chunk_update(world->chunk_map,world->map_width, world->map_height,i, world->chunk_map[i]);
-  }
-#endif
-#if MULTITHREAD
-  errno = 0;
-  pthread_t threads[N_THREADS];
-  Update_Args args[N_THREADS];
-  int n_chunks = ceil((double)(chunks_size) / N_THREADS);
-  for(int i = 0; i < N_THREADS;i++){
-    int start = i*n_chunks;
-    int end = start + n_chunks;
-    end = MIN(end, chunks_size);
-    Update_Args arg ={
-      .map_width = width,
-      .map_height = height,
-      .map = world->chunk_map,
-      .end = end,
-      .start = start
-    };
-    args[i] = arg;
-    int err = pthread_create(
-      threads + i,
-      NULL,
-      &world_update_threads,
-      args + i
-    );
-    if(err){
-      ERROR("PTHREAD ERROR\n");
-    }
-    if(end == chunks_size)break;
-  }
-
-  for(int i = 0; i<  N_THREADS;i++){
-    pthread_join(threads[i], NULL);
-  }
-#endif
-#endif
-
-
 }
 
-void world_update_new_chunks(World* world){
+void world_update_new_chunks(World* world, Threadpool* pool){
+#if !MULTITHREAD
   int count = 0;
   for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
     if(!world->chunk_map[i]->is_updated){
@@ -257,6 +217,45 @@ void world_update_new_chunks(World* world){
       count++;
     }
   }
+#else
+  errno = 0;
+  uint32_t chunks_size = world->map_height*world->map_width;
+  // pthread_t threads[NUMBER_OF_THREADS];
+  Update_Args args[NUMBER_OF_THREADS];
+  int n_chunks = ceil((double)(chunks_size) / NUMBER_OF_THREADS);
+  for(int i = 0; i < NUMBER_OF_THREADS;i++){
+    int start = i*n_chunks;
+    int end = start + n_chunks;
+    end = MIN(end, chunks_size);
+    Update_Args arg ={
+      .map_width = world->map_width,
+      .map_height = world->map_height,
+      .map = world->chunk_map,
+      .end = end,
+      .start = start,
+      .throttle_max = world->throttle_max
+    };
+    args[i] = arg;
+    Update_Args* copy = malloc(sizeof(Update_Args));
+    memcpy(copy, &arg, sizeof(Update_Args));
+    // threadpool_add_task(pool, &world_update_threads, args + i);
+    threadpool_add_task(pool, &world_update_threads, copy);
+    // int err = pthread_create(
+    //   threads + i,
+    //   NULL,
+    //   &world_update_threads,
+    //   args + i
+    // );
+    // if(err){
+    //   ERROR("PTHREAD ERROR\n");
+    // }
+    if(end == chunks_size)break;
+  }
+  threadpool_wait(pool);
+  // for(int i = 0; i<  NUMBER_OF_THREADS;i++){
+  //   pthread_join(threads[i], NULL);
+  // }
+#endif
 }
 
 void world_check_center(World* world, vec3_s pos){
@@ -274,8 +273,8 @@ void world_check_center(World* world, vec3_s pos){
   }
 
 }
-void world_update(World* world,vec3_s pos){
-   world_update_new_chunks(world); 
+void world_update(World* world,vec3_s pos, Threadpool* pool){
+   world_update_new_chunks(world,pool); 
    world_check_center(world, pos);
 
 }

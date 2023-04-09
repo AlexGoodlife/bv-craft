@@ -4,7 +4,8 @@
 #include "Chunk.h"
 #include "common.h"
 #include "math/vec.h"
-#include <pthread.h>
+#include "thread.h"
+// #include "thread.h"
 
 #define RAYCAST_AMOUNT 5
 
@@ -25,7 +26,7 @@ void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view);
 
 void world_destroy(World* world);
 ivec2_s world_get_index(World *world, vec3_s pos);
-void world_update(World* world,vec3_s pos);
+void world_update(World* world,vec3_s pos, Threadpool* pool);
 
 // DEPRECATED
 bool world_raycast(World* world, vec3_s pos, vec3_s direction,vec3_s world_scaling, ivec2_s* out_world_coord, ivec3_s* out_chunk_coord);

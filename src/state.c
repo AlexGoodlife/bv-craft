@@ -81,11 +81,13 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   blockmesh_buildAllBlocks();
 
   logFile = fopen("log.txt", "w");
+  state->thread_pool = threadpool_init(N_THREADS, N_TASKS); 
 
   return true;
 }
 
 void close() {
+  threadpool_destroy(&state->thread_pool);
   free(state->camera);
   free(state);
   fclose(logFile);

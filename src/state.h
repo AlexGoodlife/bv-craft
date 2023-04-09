@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "World.h"
+#include "thread.h"
 #include <GLFW/glfw3.h>
 #include <errno.h>
 #include <stdio.h>
@@ -13,6 +14,9 @@
 
 #define VSYNC 0
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
+
+#define N_THREADS 12
+#define N_TASKS 100
 
 #define BACKGROUND_COLOR_R 0.2f
 #define BACKGROUND_COLOR_G 0.3f
@@ -29,6 +33,7 @@ typedef struct {
   const char *windowTitle;
   int windowWidth;
   int windowHeight;
+  Threadpool* thread_pool;
 } State;
 
 extern Shader_id shader; // temp
