@@ -21,6 +21,7 @@
 #define TEXTURE_HEIGHT 16
 
 enum FaceOrder{
+    FaceOrder_Miss = -1,
     FaceOrder_Front,
     FaceOrder_Back,
     FaceOrder_Top,

@@ -94,41 +94,47 @@ void world_destroy(World *world) {
   free(world);
 }
 
-bool world_raycast(World *world, vec3_s pos, vec3_s direction,
-                   vec3_s world_scaling, ivec2_s *out_world_coord,
-                   ivec3_s *out_chunk_coord) 
-{
-  TODO("IMPLEMENT RAYCAST");
-  vec3_s current_pos = vec3(pos.x, pos.y, pos.z);
+#define STEP_SIZE 10
+
+// Very inneficient raycasting but it works
+Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
   vec3_s direction_normalize = vec3_normalize(direction);
-  LOGLN(" ");
-  LOG_VEC3(direction_normalize);
-  for (int i = 0; i < RAYCAST_AMOUNT; i++) {
-    ivec2_s world_pos = ivec2(current_pos.x / CHUNK_WIDTH, current_pos.z / CHUNK_DEPTH);
+  direction_normalize.x /= STEP_SIZE;
+  direction_normalize.y /= STEP_SIZE;
+  direction_normalize.z /= STEP_SIZE;
+  Raycast_Payload result = {
+    .world_hit = ivec2(-1,-1),
+    .chunk_hit = ivec3(-1,-1,-1),
+    .hit = false
+  };
+  for(int i = 0; i < RAYCAST_AMOUNT*STEP_SIZE;i++){
+    ivec2_s world_pos = world_get_index(world, pos);
 
-    int chunk_x = (int)(current_pos.x) % CHUNK_WIDTH;
-    int chunk_z = (int)current_pos.z % CHUNK_DEPTH;
+    vec3_s offseted_from_bottom = vec3_sub(pos,world->bottom_left_offset);
 
-    ivec3_s chunk_pos = ivec3(chunk_x, current_pos.y, chunk_z);
+    int chunk_x = round(fmodf(offseted_from_bottom.x, CHUNK_WIDTH));
+    int chunk_z = round(fmodf(offseted_from_bottom.z, CHUNK_DEPTH));
+
+    ivec3_s chunk_pos = ivec3(chunk_x, round(offseted_from_bottom.y), chunk_z);
     uint32_t world_index = INDEX2D(world_pos.x, world_pos.y, world->map_width);
     uint32_t chunk_index = INDEXCHUNK(chunk_pos.x, chunk_pos.y, chunk_pos.z);
-    
-    LOG("%d %d\n", world_index, chunk_index);
-    LOG_VEC3(current_pos);
-    LOG_IVEC3(chunk_pos);
-
     if (IN_BOUNDS_2D(world_pos.x, world_pos.y, world->map_width,world->map_height)){
       if(IN_BOUNDS_3D(chunk_pos.x, chunk_pos.y, chunk_pos.z, CHUNK_WIDTH,CHUNK_HEIGHT, CHUNK_DEPTH)) {
         if(world->chunk_map[world_index]->map[chunk_index] != 0){
-          *out_world_coord = ivec2_cpy(world_pos);
-          *out_chunk_coord = ivec3_cpy(chunk_pos);
-          return true;
+          result.world_hit = world_pos;
+          result.chunk_hit = chunk_pos;
+          result.pos_hit = pos;
+          result.hit = true;
+          return result;
         }
       }
     }
-    current_pos = vec3_add(current_pos, direction_normalize);
+    pos = vec3_add(pos, direction_normalize);
+
   }
-  return false;
+  result.pos_hit = pos;
+  return result;
+
 }
 
 typedef struct{

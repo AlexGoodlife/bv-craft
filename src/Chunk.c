@@ -61,7 +61,7 @@ void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,C
             facemesh_copyVertexData(
                 &all_blocks[chunk->map[INDEXCHUNK(x,y,z)]-1].faces[direction], 
                 chunk->mesh->vertices + (chunk->mesh->faceCount * FLOATS_PER_VERTEX * VERTEXES_PER_FACE),
-                vec3(x,y,z)
+                vec3((float)x,(float)y,(float)z)
             );
             chunk->mesh->faceCount++;
         }

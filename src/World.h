@@ -21,6 +21,14 @@ typedef struct{
     int throttle_max;
 }World;
 
+typedef struct {
+    bool hit;
+    vec3_s pos_hit;
+    ivec2_s world_hit;
+    ivec3_s chunk_hit;
+    enum FaceOrder face_hit;
+}Raycast_Payload;
+
 World* world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos);
 void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view);
 
@@ -28,8 +36,7 @@ void world_destroy(World* world);
 ivec2_s world_get_index(World *world, vec3_s pos);
 void world_update(World* world,vec3_s pos, Threadpool* pool);
 
-// DEPRECATED
-bool world_raycast(World* world, vec3_s pos, vec3_s direction,vec3_s world_scaling, ivec2_s* out_world_coord, ivec3_s* out_chunk_coord);
+Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction);
 
 
 #endif

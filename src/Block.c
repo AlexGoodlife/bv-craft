@@ -1,13 +1,36 @@
 #include "Block.h"
+#include "common.h"
 
 BlockMesh* all_blocks;
 
-float blockmesh_mapUVx(float u, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-    return (float)((int)((textureWidth)*(blockID + u)) % atlasWidth) /atlasWidth;
+float blockmesh_mapUVx(double u, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
+    return (float)((int)((textureWidth)*(blockID + u)) % atlasWidth) /(float)atlasWidth;
 }
-float blockmesh_mapUVy(float v, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-    return ((atlasHeight) - (((blockID/(atlasWidth/textureWidth)) + (1-v))*(textureHeight))) / atlasHeight;
+float blockmesh_mapUVy(double v, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
+    return ((atlasHeight) - (((float)(blockID/(atlasWidth/textureWidth)) + (1-v))*(textureHeight))) / (float)atlasHeight;
 }
+
+// float blockmesh_mapUVx(float u, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
+//       
+//     int num_columns = (int) (atlasWidth / textureWidth); // number of columns in the atlas
+//     int column = blockID % num_columns; // column of the desired texture
+//
+//     float tile_u = column * (textureWidth / (double)atlasWidth);
+//
+//     float atlas_u = tile_u + u * (textureWidth / (float)atlasWidth);
+//     // printf("U: %f\n", atlas_u);
+//     return atlas_u;
+// }
+//
+// float blockmesh_mapUVy(float v, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
+//     int num_columns = (int) (atlasWidth / textureWidth); // number of columns in the atlas
+//     int row = blockID / num_columns; // row of the desired texture
+//
+//     float tile_v = row * (textureHeight / (double)atlasHeight);
+//
+//     float atlas_v = tile_v - v) *(textureHeight / (float)atlasHeight);
+//     return atlas_v;
+// }
 
 
 static vec3_s ForwardFace[]  =  
@@ -128,6 +151,16 @@ static vec2_s RightFaceUV[] = {
     vec2(1.0f,0.0f), // Bottom Right
 };
 
+
+static vec3_s *Faces_coords[] = {
+    ForwardFace,
+    BackFace,
+    UpFace,
+    DownFace,
+    LeftFace,
+    RightFace
+};
+
 FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos_offset){
     FaceMesh result;
     result.texture_pos_offset = texture_pos_offset;
@@ -145,51 +178,13 @@ void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffs
 }
 
 
-BlockMesh blockmesh_build(enum BlockID ID){
-    BlockMesh result;
-    result.id = ID;
-    result.faces[FaceOrder_Front] = facemesh_build(ForwardFace,ForwardFaceUV, 0);
-    result.faces[FaceOrder_Back] = facemesh_build(BackFace, BackFaceUV,0);
-    result.faces[FaceOrder_Top] = facemesh_build(UpFace,UpFaceUV,0);
-    result.faces[FaceOrder_Bottom] = facemesh_build(DownFace, DownFaceUV,0);
-    result.faces[FaceOrder_Left] = facemesh_build(LeftFace, LeftFaceUV,0);
-    result.faces[FaceOrder_Right] = facemesh_build(RightFace, RightFaceUV,0);
-    float half_pixel_size = ((1/ATLAS_WIDTH)* 0.5f);
-    for(int i = 0; i < FaceOrder_End;i++){
-        for(int j = 0; j < VERTEXES_PER_FACE;j++){
-            result.faces[i].uvData[j].x = blockmesh_mapUVx(result.faces[i].uvData[j].x, result.id + result.faces[i].texture_pos_offset,TEXTURE_WIDTH, TEXTURE_HEIGHT, ATLAS_WIDTH, ATLAS_HEIGHT);
-            result.faces[i].uvData[j].y = blockmesh_mapUVy(result.faces[i].uvData[j].y, result.id + result.faces[i].texture_pos_offset,TEXTURE_WIDTH, TEXTURE_HEIGHT, ATLAS_WIDTH, ATLAS_HEIGHT);
-        }
-        result.faces[i].uvData[0].x += half_pixel_size;
-        result.faces[i].uvData[0].y += half_pixel_size;
-
-        result.faces[i].uvData[1].x += half_pixel_size;
-        result.faces[i].uvData[1].y -= half_pixel_size;
-
-        result.faces[i].uvData[2].x -= half_pixel_size;
-        result.faces[i].uvData[2].y += half_pixel_size;
-
-        result.faces[i].uvData[3].x += half_pixel_size;
-        result.faces[i].uvData[3].y -= half_pixel_size;
-
-        result.faces[i].uvData[4].x -= half_pixel_size;
-        result.faces[i].uvData[4].y -= half_pixel_size;
-
-        result.faces[i].uvData[5].x -= half_pixel_size;
-        result.faces[i].uvData[5].y += half_pixel_size;
-    }
-    result.vertexCount = N_FACES * VERTEXES_PER_FACE * 3 + N_FACES* VERTEXES_PER_FACE * 2;
-    result.indicesCount = FACE_INDICES_COUNT * N_FACES;
-    return result;
-}
-
 void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset){
     for(int i = 0; i < FaceOrder_End;i++){
         facemesh_copyVertexData(&mesh->faces[i], vertices + (i* VERTEXES_PER_FACE*FLOATS_PER_VERTEX),positionOffset);
     }
 }
 
-
+#define WINDOW_WIDTH 1280
 BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position, uint32_t* face_texture_offsets){
     BlockMesh result;
     result.id = ID;
@@ -200,8 +195,25 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
     result.faces[FaceOrder_Bottom] = facemesh_build(DownFace, DownFaceUV,face_texture_offsets[FaceOrder_Bottom]);
     result.faces[FaceOrder_Left] = facemesh_build(LeftFace, LeftFaceUV,face_texture_offsets[FaceOrder_Left]);
     result.faces[FaceOrder_Right] = facemesh_build(RightFace, RightFaceUV,face_texture_offsets[FaceOrder_Right]);
-    float half_pixel_size = ((1/ATLAS_WIDTH)* 0.5f);
+    // float half_pixel_size = ((float)ATLAS_WIDTH/ WINDOW_WIDTH)/25;
     for(int i = 0; i < FaceOrder_End;i++){
+        // result.faces[i].uvData[0].x += half_pixel_size;
+        // result.faces[i].uvData[0].y += half_pixel_size;
+        //
+        // result.faces[i].uvData[1].x += half_pixel_size;
+        // result.faces[i].uvData[1].y -= half_pixel_size;
+        //
+        // result.faces[i].uvData[2].x -= half_pixel_size;
+        // result.faces[i].uvData[2].y += half_pixel_size;
+        //
+        // result.faces[i].uvData[3].x += half_pixel_size;
+        // result.faces[i].uvData[3].y -= half_pixel_size;
+        //
+        // result.faces[i].uvData[4].x -= half_pixel_size;
+        // result.faces[i].uvData[4].y -= half_pixel_size;
+        //
+        // result.faces[i].uvData[5].x -= half_pixel_size;
+        // result.faces[i].uvData[5].y += half_pixel_size;
         for(int j = 0; j < VERTEXES_PER_FACE;j++){
             result.faces[i].uvData[j].x = blockmesh_mapUVx(
                 result.faces[i].uvData[j].x,
@@ -220,23 +232,6 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
                 ATLAS_HEIGHT
             );
         }
-        result.faces[i].uvData[0].x += half_pixel_size;
-        result.faces[i].uvData[0].y += half_pixel_size;
-
-        result.faces[i].uvData[1].x += half_pixel_size;
-        result.faces[i].uvData[1].y -= half_pixel_size;
-
-        result.faces[i].uvData[2].x -= half_pixel_size;
-        result.faces[i].uvData[2].y += half_pixel_size;
-
-        result.faces[i].uvData[3].x += half_pixel_size;
-        result.faces[i].uvData[3].y -= half_pixel_size;
-
-        result.faces[i].uvData[4].x -= half_pixel_size;
-        result.faces[i].uvData[4].y -= half_pixel_size;
-
-        result.faces[i].uvData[5].x -= half_pixel_size;
-        result.faces[i].uvData[5].y += half_pixel_size;
     }
     result.vertexCount = N_FACES * VERTEXES_PER_FACE * 5;
     result.indicesCount = FACE_INDICES_COUNT * N_FACES;
@@ -254,3 +249,26 @@ void blockmesh_buildAllBlocks(){
 
 }
 
+static vec3_s check_directions[FaceOrder_End] = 
+{
+    vec3(0,0,-1), // FRONT
+    vec3(0,0,1), // BACK
+    vec3(0,1,0), // TOP
+    vec3(0,-1,0), // BOTTOM 
+    vec3(-1,0,0), // LEFT
+    vec3(1,0,0) // RIGHT
+};
+
+enum FaceOrder block_intersect(vec3_s block_pos, vec3_s pos, vec3_s direction){
+    // Since we are dealing with blocks we can make alot of assumptions about their characteristics :)
+    for(int i = 0; i < FaceOrder_End;i++){
+        vec3_s face_center = vec3_add(check_directions[i], block_pos);
+        vec3_s normal = vec3_normalize(vec3_sub(block_pos, face_center)); // the normal is just the center of the plane - center of block
+        float denom = vec3_dot(normal, direction);
+        if(ABS(denom) > 0.0001f){
+            float t = vec3_dot(vec3_sub(face_center, pos), normal) /denom;
+            if(t >= 0) return i;
+        }
+    }
+    return FaceOrder_Miss;
+}

@@ -64,6 +64,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   glfwSetInputMode(state->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   glEnable(GL_DEPTH_TEST);
+  glDisable(GL_MULTISAMPLE);
 
   shader =
       shader_load("src/shaders/textured.vert", "src/shaders/textured.frag");
@@ -103,28 +104,27 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 
 bool poly = false;
 
-#define RAYCAST 0
+#define RAYCAST 1
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) {
-  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    ivec2_s pos =world_get_index(world, state->camera->pos);
-    LOG("pos_x : %d, pos_y : %d\n", pos.x, pos.y );  
-  }
+  // if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+  //   ivec2_s pos =world_get_index(world, state->camera->pos);
+  //   LOG("pos_x : %d, pos_y : %d\n", pos.x, pos.y );  
+  // }
 #if RAYCAST
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    ivec2_s world_coord = ivec2(0, 0);
-    ivec3_s chunk_coord = ivec3(0,0,0);
-    if (world_raycast(world, state->camera->pos, state->camera->front,SCALING_FACTOR, &world_coord, &chunk_coord)) {
+    Raycast_Payload raycast = world_raycast(world, state->camera->pos, state->camera->front);
+    LOG("WORLD_POS: %d %d\n", raycast.world_hit.x, raycast.world_hit.y);
+    LOG("CHUNK_POS: %d %d %d\n", raycast.chunk_hit.x,raycast.chunk_hit.y,raycast.chunk_hit.z);
+    if (raycast.hit) {
       LOG("HIT\n");
-      uint32_t world_index = INDEX2D(world_coord.x, world_coord.y, world->map_width);
-      uint32_t chunk_index = INDEXCHUNK(chunk_coord.x, chunk_coord.y, chunk_coord.z);
-      Chunk *chunk = world->chunk_map[world_index];
+      uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
+      uint32_t chunk_index = INDEXCHUNK(raycast.chunk_hit.x, raycast.chunk_hit.y,raycast.chunk_hit.z);
       uint32_t block_id = world->chunk_map[world_index]->map[chunk_index];
       LOG("ID: %d\n", block_id);
       if(block_id != 0){
-        chunk->map[chunk_index] = 0; 
-        chunk_update(world->chunk_map, world->map_width, world->map_height,world_index, chunk);
-        chunk_prepare(chunk);
+        world->chunk_map[world_index]->map[chunk_index] = 0;
+        world->chunk_map[world_index]->is_updated = false;
       }
         
     }
@@ -242,13 +242,22 @@ GLuint loadTexture(const char *path) {
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
                  GL_UNSIGNED_BYTE, data);
+
+    int base_mip_level = 0;
+    int max_mip_level = 4; // for example, use up to the 4th mipmap level
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, base_mip_level);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, max_mip_level);    
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    // float max_anisotropy = 0.0f;
+    // glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropy);
+    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, max_anisotropy);
+    //
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_NEAREST_MIPMAP_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 
     stbi_image_free(data);
   } else {
