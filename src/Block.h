@@ -67,5 +67,5 @@ void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
 
 void blockmesh_buildAllBlocks();
 void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset);
-
+enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_end, vec3_s direction);
 #endif

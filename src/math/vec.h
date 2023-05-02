@@ -46,6 +46,8 @@ typedef struct{
 
 #define vec3_multiply_const(vec, c) ({vec.x *= c; vec.y *= c; vec.z *= c;})
 
+#define vec3_mult_const(vec , c) vec3(vec.x * c, vec.y * c, vec.z * c)
+
 #define vec3_negate(vec) ({vec.x = -vec.x; vec.y = -vec.y; vec.z = -vec.z;})
 
 

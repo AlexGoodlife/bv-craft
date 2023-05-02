@@ -7,9 +7,9 @@
 #include "Block.h"
 #include "Shader.h"
 
-#define CHUNK_WIDTH 32
-#define CHUNK_DEPTH 32
-#define CHUNK_HEIGHT 32
+#define CHUNK_WIDTH 16
+#define CHUNK_DEPTH 16
+#define CHUNK_HEIGHT 64
 
 #define INDEXCHUNK(x,y,z) INDEX3D(x,y,z,CHUNK_WIDTH,CHUNK_HEIGHT)
 

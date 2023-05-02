@@ -16,9 +16,9 @@
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
   float x_offset = (width/2)*CHUNK_WIDTH + CHUNK_WIDTH/2;
-  float y_offset = (height/2)*CHUNK_HEIGHT + CHUNK_HEIGHT/2;
-  vec3_s translate_x = vec3_sub(pos, vec3(x_offset, 0,y_offset));
-  translate_x.y = 0;
+  float y_offset = (height/2)*CHUNK_DEPTH + CHUNK_DEPTH/2;
+  vec3_s translate_x = vec3_sub(pos, vec3(x_offset, CHUNK_HEIGHT/2,y_offset));
+  // translate_x.y = CHUNK_HEIGHT;
   return translate_x;
 }
 
@@ -107,6 +107,7 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
     .chunk_hit = ivec3(-1,-1,-1),
     .hit = false
   };
+  vec3_s save = vec3_cpy(pos);
   for(int i = 0; i < RAYCAST_AMOUNT*STEP_SIZE;i++){
     ivec2_s world_pos = world_get_index(world, pos);
 
@@ -118,17 +119,23 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
     ivec3_s chunk_pos = ivec3(chunk_x, round(offseted_from_bottom.y), chunk_z);
     uint32_t world_index = INDEX2D(world_pos.x, world_pos.y, world->map_width);
     uint32_t chunk_index = INDEXCHUNK(chunk_pos.x, chunk_pos.y, chunk_pos.z);
+
     if (IN_BOUNDS_2D(world_pos.x, world_pos.y, world->map_width,world->map_height)){
       if(IN_BOUNDS_3D(chunk_pos.x, chunk_pos.y, chunk_pos.z, CHUNK_WIDTH,CHUNK_HEIGHT, CHUNK_DEPTH)) {
         if(world->chunk_map[world_index]->map[chunk_index] != 0){
+          vec3_s hit_pos_world = vec3(world_pos.x, 0, world_pos.y);
+          // result.pos_hit = vec3_add(hit_pos_world,vec3(chunk_pos.x,chunk_pos.y,chunk_pos.z));
+          result.pos_hit = vec3_cpy(chunk_pos);
+          result.pos_hit = vec3(result.pos_hit.x  + (world_pos.x * CHUNK_WIDTH), result.pos_hit.y , result.pos_hit.z + (world_pos.y * CHUNK_DEPTH));
+          result.face_hit = block_intersect(result.pos_hit, vec3_sub(save, world->bottom_left_offset),vec3_sub(pos, world->bottom_left_offset),vec3_normalize(direction));
           result.world_hit = world_pos;
           result.chunk_hit = chunk_pos;
-          result.pos_hit = pos;
           result.hit = true;
           return result;
         }
       }
     }
+
     pos = vec3_add(pos, direction_normalize);
 
   }
@@ -258,12 +265,12 @@ void world_check_center(World* world, vec3_s pos){
   ivec2_s new_index = world_get_index(world, pos);
   ivec2_s new_index_offset = ivec2_sub(world->center_index, new_index);
   world->center_coord= vec3_sub(world->center_coord, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
-  vec3_s new_center = vec3_sub(world->bottom_left_offset, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
+  // vec3_s new_center = vec3_sub(world->bottom_left_offset, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
   uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
   if(new_index_pos != ((world->map_height * world->map_width) / 2)){
-    LOG_VEC3(new_center);
-    LOG("INDEX: %d %d\n", new_index.x, new_index.y);
-    LOG("%d %d\n", new_index_offset.x, new_index_offset.y);
+    // LOG_VEC3(new_center);
+    // LOG("INDEX: %d %d\n", new_index.x, new_index.y);
+    // LOG("%d %d\n", new_index_offset.x, new_index_offset.y);
     world_update_chunks(world, world->center_coord, new_index);
     // world_update_chunks(world, pos, new_index);
   }
