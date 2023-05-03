@@ -323,6 +323,7 @@ void world_break_block(World* world, Raycast_Payload raycast){
 
 void world_place_block(World * world, Raycast_Payload raycast){
     if(!raycast.hit) return;
+
     uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
     vec3_s new_chunk_vec = vec3_add(vec3_cpy(raycast.chunk_hit), check_directions[raycast.face_hit]);
     uint32_t chunk_index = INDEXCHUNK(new_chunk_vec.x, new_chunk_vec.y,new_chunk_vec.z);

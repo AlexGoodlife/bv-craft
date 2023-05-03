@@ -152,16 +152,6 @@ static vec2_s RightFaceUV[] = {
     vec2(1.0f,0.0f), // Bottom Right
 };
 
-
-static vec3_s *Faces_coords[FaceOrder_End] = {
-    ForwardFace,
-    BackFace,
-    UpFace,
-    DownFace,
-    LeftFace,
-    RightFace
-};
-
 FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos_offset){
     FaceMesh result;
     result.texture_pos_offset = texture_pos_offset;
