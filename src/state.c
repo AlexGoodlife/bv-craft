@@ -105,58 +105,16 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 bool poly = false;
 
 #define RAYCAST 1
-static vec3_s check_directions[FaceOrder_End] = 
-{
-    vec3(0,0,-1), // FRONT
-    vec3(0,0,1), // BACK
-    vec3(0,1,0), // TOP
-    vec3(0,-1,0), // BOTTOM 
-    vec3(-1,0,0), // LEFT
-    vec3(1,0,0) // RIGHT
-};
 
 void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) {
-  // if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-  //   ivec2_s pos =world_get_index(world, state->camera->pos);
-  //   LOG("pos_x : %d, pos_y : %d\n", pos.x, pos.y );  
-  // }
 #if RAYCAST
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     Raycast_Payload raycast = world_raycast(world, state->camera->pos, state->camera->front);
-    LOG("WORLD_POS: %d %d\n", raycast.world_hit.x, raycast.world_hit.y);
-    LOG("CHUNK_POS: %d %d %d\n", raycast.chunk_hit.x,raycast.chunk_hit.y,raycast.chunk_hit.z);
-    LOG("POS_HIT\n");
-    LOG_VEC3(raycast.pos_hit);
-    LOG("FACE HIT : %d\n", raycast.face_hit);
-    if (raycast.hit) {
-      LOG("HIT\n");
-      uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
-      uint32_t chunk_index = INDEXCHUNK(raycast.chunk_hit.x, raycast.chunk_hit.y,raycast.chunk_hit.z);
-      uint32_t block_id = world->chunk_map[world_index]->map[chunk_index];
-      LOG("ID: %d\n", block_id);
-      if(block_id != 0){
-        world->chunk_map[world_index]->map[chunk_index] = 0;
-        world->chunk_map[world_index]->is_updated = false;
-      }
-        
-    }
-    LOG("\n");
+    world_break_block(world, raycast);
   }
   if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
     Raycast_Payload raycast = world_raycast(world, state->camera->pos, state->camera->front);
-    if(raycast.hit){
-      printf("HIT %d\n", raycast.face_hit);
-      uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
-      vec3_s new_chunk_vec = vec3_add(vec3_cpy(raycast.chunk_hit), check_directions[raycast.face_hit]);
-      uint32_t chunk_index = INDEXCHUNK(new_chunk_vec.x, new_chunk_vec.y,new_chunk_vec.z);
-      if(IN_BOUNDS_3D(new_chunk_vec.x, new_chunk_vec.y, new_chunk_vec.z, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH)){
-        if(world->chunk_map[world_index]->map[chunk_index] == 0){
-          world->chunk_map[world_index]->map[chunk_index] = Gravel + 1;
-          world->chunk_map[world_index]->is_updated = false;
-        }
-      }
-      
-    }
+    world_place_block(world, raycast);
   }
 #endif
 }

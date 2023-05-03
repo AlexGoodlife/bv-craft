@@ -270,27 +270,15 @@ bool is_inside_face(enum FaceOrder face, vec3_s hit_pos, vec3_s face_center){
 
 enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_end){
     // Since we are dealing with blocks we can make alot of assumptions about their characteristics :)
-    LOGLN("ORIGIN");
-    LOG_VEC3(ray_origin);
-
-    LOGLN("END");
-    LOG_VEC3(ray_end);
 
     vec3_s direction = (vec3_sub(ray_end, ray_origin));
     // direction = vec3_normalize(direction);
-    LOGLN("DIRECTION");
-    LOG_VEC3(direction);
     for(int i = 0; i < FaceOrder_End;i++){
         vec3_s face_center = vec3_add(block_pos,vec3_mult_const(check_directions[i], 0.5));
-        LOGLN("CENTER");
-        LOG_VEC3(face_center);
         vec3_s normal = vec3_normalize(vec3_sub(face_center,block_pos)); // the normal is just the center of the plane - center of block
-        LOGLN("NORMAL");
-        LOG_VEC3(normal);
         float denom = vec3_dot(normal, (direction));
         if(ABS(denom) > 0.0001f){
             float t = vec3_dot(vec3_sub(face_center, ray_origin), normal) /denom;
-            LOGLN("T : %f", t);
             if(t >= 0 && t <= 1){
                 vec3_s hit_point = vec3_add(ray_origin, vec3_mult_const(direction, t));
                 if(is_inside_face(i,hit_point, face_center)) return i;

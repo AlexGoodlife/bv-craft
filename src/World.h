@@ -37,6 +37,7 @@ ivec2_s world_get_index(World *world, vec3_s pos);
 void world_update(World* world,vec3_s pos, Threadpool* pool);
 
 Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction);
-
+void world_place_block(World * world, Raycast_Payload raycast);
+void world_break_block(World * world, Raycast_Payload raycast);
 
 #endif

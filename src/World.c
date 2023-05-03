@@ -109,9 +109,9 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
   };
   vec3_s save = vec3_cpy(pos);
   for(int i = 0; i < RAYCAST_AMOUNT*STEP_SIZE;i++){
-    ivec2_s world_pos = world_get_index(world, pos);
+    ivec2_s world_pos = world_get_index(world, pos); // Get index of block in the world
 
-    vec3_s offseted_from_bottom = vec3_sub(pos,world->bottom_left_offset);
+    vec3_s offseted_from_bottom = vec3_sub(pos,world->bottom_left_offset); // Offset from the bottom left offset to get acutal world space coordinates
 
     int chunk_x = round(fmodf(offseted_from_bottom.x, CHUNK_WIDTH));
     int chunk_z = round(fmodf(offseted_from_bottom.z, CHUNK_DEPTH));
@@ -123,11 +123,9 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
     if (IN_BOUNDS_2D(world_pos.x, world_pos.y, world->map_width,world->map_height)){
       if(IN_BOUNDS_3D(chunk_pos.x, chunk_pos.y, chunk_pos.z, CHUNK_WIDTH,CHUNK_HEIGHT, CHUNK_DEPTH)) {
         if(world->chunk_map[world_index]->map[chunk_index] != 0){
-          vec3_s hit_pos_world = vec3(world_pos.x, 0, world_pos.y);
-          // result.pos_hit = vec3_add(hit_pos_world,vec3(chunk_pos.x,chunk_pos.y,chunk_pos.z));
-          result.pos_hit = vec3_cpy(chunk_pos);
-          result.pos_hit = vec3(result.pos_hit.x  + (world_pos.x * CHUNK_WIDTH), result.pos_hit.y , result.pos_hit.z + (world_pos.y * CHUNK_DEPTH));
-          result.face_hit = block_intersect(result.pos_hit, vec3_sub(save, world->bottom_left_offset),vec3_sub(pos, world->bottom_left_offset));
+          result.pos_hit = vec3_cpy(chunk_pos); // Get chunk coordinates
+          result.pos_hit = vec3(result.pos_hit.x  + (world_pos.x * CHUNK_WIDTH), result.pos_hit.y , result.pos_hit.z + (world_pos.y * CHUNK_DEPTH)); // Translate coordinates into world space to compare with hit
+          result.face_hit = block_intersect(result.pos_hit, vec3_sub(save, world->bottom_left_offset),vec3_sub(pos, world->bottom_left_offset)); // send it to intersection, also offset things to bottom left
           result.world_hit = world_pos;
           result.chunk_hit = chunk_pos;
           result.hit = true;
@@ -280,4 +278,59 @@ void world_update(World* world,vec3_s pos, Threadpool* pool){
    world_update_new_chunks(world,pool); 
    world_check_center(world, pos);
 
+}
+
+static vec3_s check_directions[FaceOrder_End] = 
+{
+    vec3(0,0,-1), // FRONT
+    vec3(0,0,1), // BACK
+    vec3(0,1,0), // TOP
+    vec3(0,-1,0), // BOTTOM 
+    vec3(-1,0,0), // LEFT
+    vec3(1,0,0) // RIGHT
+};
+
+static void world_hit_check_neighbours(World *world, uint32_t world_index, Raycast_Payload* raycast){
+    //Update surrounding chunks
+    if(raycast->chunk_hit.x == CHUNK_WIDTH || raycast->chunk_hit.x == 0){
+        if(IN_BOUNDS_2D(raycast->world_hit.x +1,raycast->world_hit.y, world->map_width, world->map_height))
+          world->chunk_map[world_index + 1]->is_updated = false;
+        if(IN_BOUNDS_2D(raycast->world_hit.x - 1,raycast->world_hit.y, world->map_width, world->map_height))
+          world->chunk_map[world_index - 1]->is_updated = false;
+    }
+    if(raycast->chunk_hit.z == CHUNK_DEPTH || raycast->chunk_hit.z == 0){
+        if(IN_BOUNDS_2D(raycast->world_hit.x,raycast->world_hit.y+1, world->map_width, world->map_height))
+          world->chunk_map[world_index + world->map_width]->is_updated = false;
+        if(IN_BOUNDS_2D(raycast->world_hit.x,raycast->world_hit.y-1, world->map_width, world->map_height))
+          world->chunk_map[world_index - world->map_width]->is_updated = false;
+    }
+
+}
+
+void world_break_block(World* world, Raycast_Payload raycast){
+  if(!raycast.hit) return;
+
+  uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
+  uint32_t chunk_index = INDEXCHUNK(raycast.chunk_hit.x, raycast.chunk_hit.y,raycast.chunk_hit.z);
+  uint32_t block_id = world->chunk_map[world_index]->map[chunk_index];
+  if(block_id != 0){
+    world->chunk_map[world_index]->map[chunk_index] = 0;
+    world->chunk_map[world_index]->is_updated = false;
+    world_hit_check_neighbours(world, world_index, &raycast);
+
+  }
+}
+
+void world_place_block(World * world, Raycast_Payload raycast){
+    if(!raycast.hit) return;
+    uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
+    vec3_s new_chunk_vec = vec3_add(vec3_cpy(raycast.chunk_hit), check_directions[raycast.face_hit]);
+    uint32_t chunk_index = INDEXCHUNK(new_chunk_vec.x, new_chunk_vec.y,new_chunk_vec.z);
+    if(IN_BOUNDS_3D(new_chunk_vec.x, new_chunk_vec.y, new_chunk_vec.z, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH)){
+      if(world->chunk_map[world_index]->map[chunk_index] == 0){
+        world->chunk_map[world_index]->map[chunk_index] = Gravel + 1;
+        world->chunk_map[world_index]->is_updated = false;
+        world_hit_check_neighbours(world, world_index, &raycast);
+      }
+    }
 }
