@@ -197,6 +197,9 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
         uint32_t old_index_pos = INDEX2D(x, y, width);
         //memcpy(world->chunk_map + new_index_pos, old_chunks + old_index_pos, sizeof(Chunk*));
         world->chunk_map[new_index_pos] = old_chunks[old_index_pos];    
+        if(y == 0 || y == height-1 || x == 0 || x == width-1){
+          world->chunk_map[new_index_pos]->is_updated = false; // Update every single chunk (necessary?)
+        }
 
         //world->chunk_map[new_index_pos]->is_updated = false; // Update every single chunk (necessary?)
       }
@@ -218,76 +221,16 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   }
 }
 
-void world_update_new_chunks_spiral(World* world){
-  if(world->throttle_max == 0) return;
-  uint32_t left = (world->map_width-1)/2;
-  uint32_t right = world->map_width/2;
-  uint32_t top = (world->map_height-1) /2;
-  uint32_t bottom = world->map_height /2;
-  int count = 0;
-
-  while(left >=0  && right < world->map_width && top >= 0  && bottom < world->map_height){
-
-    for(int i = left; i < right+1;i++){
-      int index = INDEX2D(i,top,world->map_width);
-      printf("INDEX: %d\n", index);
-      if(!world->chunk_map[index]->is_updated){
-        chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
-        count++;
-      }
-    }
-
-    for(int i = top +1; i < bottom + 1;i++){
-      int index = INDEX2D(right,i,world->map_width);
-      printf("INDEX: %d\n", index);
-      if(!world->chunk_map[index]->is_updated){
-        chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
-        count++;
-      }
-    }
-
-    if(top < bottom && left < right){
-
-      for(int i = right-1; i > left -1;i--){
-        int index = INDEX2D(i,bottom,world->map_width);
-      printf("INDEX: %d\n", index);
-        if(!world->chunk_map[index]->is_updated){
-          chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
-          count++;
-        }
-
-      }
-
-      for(int i = bottom -1; i > top;i--){
-        int index = INDEX2D(left,i,world->map_width);
-      printf("INDEX: %d\n", index);
-        if(!world->chunk_map[index]->is_updated){
-          chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
-          count++;
-        }
-
-      }
-    }
-
-    left--;
-    right++;
-    top--;
-    bottom++;
-  }
-  world->throttle_max = 0;
-  
-}
 
 void world_update_new_chunks(World* world, Threadpool* pool){
 #if !MULTITHREAD
-  world_update_new_chunks_spiral(world);
-  // int count = 0;
-  // for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
-  //   if(!world->chunk_map[i]->is_updated){
-  //     chunk_update(world->chunk_map, world->map_width, world->map_height,i,world->chunk_map[i]);
-  //     count++;
-  //   }
-  // }
+  int count = 0;
+  for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
+    if(!world->chunk_map[i]->is_updated){
+      chunk_update(world->chunk_map, world->map_width, world->map_height,i,world->chunk_map[i]);
+      count++;
+    }
+  }
 #else
   errno = 0;
   uint32_t chunks_size = world->map_height*world->map_width;
