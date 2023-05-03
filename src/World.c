@@ -197,7 +197,8 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
         uint32_t old_index_pos = INDEX2D(x, y, width);
         //memcpy(world->chunk_map + new_index_pos, old_chunks + old_index_pos, sizeof(Chunk*));
         world->chunk_map[new_index_pos] = old_chunks[old_index_pos];    
-        world->chunk_map[new_index_pos]->is_updated = false;
+
+        //world->chunk_map[new_index_pos]->is_updated = false; // Update every single chunk (necessary?)
       }
       else{
          chunk_destroy(&old_chunks[INDEX2D(x,y,width)]);
@@ -217,19 +218,84 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   }
 }
 
+void world_update_new_chunks_spiral(World* world){
+  if(world->throttle_max == 0) return;
+  uint32_t left = (world->map_width-1)/2;
+  uint32_t right = world->map_width/2;
+  uint32_t top = (world->map_height-1) /2;
+  uint32_t bottom = world->map_height /2;
+  int count = 0;
+
+  while(left >=0  && right < world->map_width && top >= 0  && bottom < world->map_height){
+
+    for(int i = left; i < right+1;i++){
+      int index = INDEX2D(i,top,world->map_width);
+      printf("INDEX: %d\n", index);
+      if(!world->chunk_map[index]->is_updated){
+        chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
+        count++;
+      }
+    }
+
+    for(int i = top +1; i < bottom + 1;i++){
+      int index = INDEX2D(right,i,world->map_width);
+      printf("INDEX: %d\n", index);
+      if(!world->chunk_map[index]->is_updated){
+        chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
+        count++;
+      }
+    }
+
+    if(top < bottom && left < right){
+
+      for(int i = right-1; i > left -1;i--){
+        int index = INDEX2D(i,bottom,world->map_width);
+      printf("INDEX: %d\n", index);
+        if(!world->chunk_map[index]->is_updated){
+          chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
+          count++;
+        }
+
+      }
+
+      for(int i = bottom -1; i > top;i--){
+        int index = INDEX2D(left,i,world->map_width);
+      printf("INDEX: %d\n", index);
+        if(!world->chunk_map[index]->is_updated){
+          chunk_update(world->chunk_map, world->map_width, world->map_height,index,world->chunk_map[index]);
+          count++;
+        }
+
+      }
+    }
+
+    left--;
+    right++;
+    top--;
+    bottom++;
+  }
+  world->throttle_max = 0;
+  
+}
 
 void world_update_new_chunks(World* world, Threadpool* pool){
 #if !MULTITHREAD
-  int count = 0;
-  for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
-    if(!world->chunk_map[i]->is_updated){
-      chunk_update(world->chunk_map, world->map_width, world->map_height,i,world->chunk_map[i]);
-      count++;
-    }
-  }
+  world_update_new_chunks_spiral(world);
+  // int count = 0;
+  // for(int i = 0; i < world->map_width*world->map_height && count < world->throttle_max;i++){
+  //   if(!world->chunk_map[i]->is_updated){
+  //     chunk_update(world->chunk_map, world->map_width, world->map_height,i,world->chunk_map[i]);
+  //     count++;
+  //   }
+  // }
 #else
   errno = 0;
   uint32_t chunks_size = world->map_height*world->map_width;
+
+  //Lazy fix to always update the center chunk
+  if(!world->chunk_map[chunks_size/2]->is_updated){
+    chunk_update(world->chunk_map, world->map_width, world->map_width, chunks_size/2, world->chunk_map[chunks_size/2]);
+  }
   // pthread_t threads[NUMBER_OF_THREADS];
   Update_Args args[NUMBER_OF_THREADS];
   // Task *tasks[NUMBER_OF_THREADS];
@@ -292,13 +358,13 @@ static vec3_s check_directions[FaceOrder_End] =
 
 static void world_hit_check_neighbours(World *world, uint32_t world_index, Raycast_Payload* raycast){
     //Update surrounding chunks
-    if(raycast->chunk_hit.x == CHUNK_WIDTH || raycast->chunk_hit.x == 0){
+    if(raycast->chunk_hit.x == CHUNK_WIDTH-1 || raycast->chunk_hit.x == 0){
         if(IN_BOUNDS_2D(raycast->world_hit.x +1,raycast->world_hit.y, world->map_width, world->map_height))
           world->chunk_map[world_index + 1]->is_updated = false;
         if(IN_BOUNDS_2D(raycast->world_hit.x - 1,raycast->world_hit.y, world->map_width, world->map_height))
           world->chunk_map[world_index - 1]->is_updated = false;
     }
-    if(raycast->chunk_hit.z == CHUNK_DEPTH || raycast->chunk_hit.z == 0){
+    if(raycast->chunk_hit.z == CHUNK_DEPTH-1 || raycast->chunk_hit.z == 0){
         if(IN_BOUNDS_2D(raycast->world_hit.x,raycast->world_hit.y+1, world->map_width, world->map_height))
           world->chunk_map[world_index + world->map_width]->is_updated = false;
         if(IN_BOUNDS_2D(raycast->world_hit.x,raycast->world_hit.y-1, world->map_width, world->map_height))

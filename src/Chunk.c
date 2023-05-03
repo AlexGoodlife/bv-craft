@@ -33,19 +33,22 @@ static ivec3_s check_directions[FaceOrder_End] =
     ivec3(1,0,0) // RIGHT
 };
 
-bool check_neighbouring_chunks(Chunk** map, uint32_t map_width, uint32_t map_height, Chunk* chunk, uint32_t chunk_pos, enum FaceOrder face,uint32_t x,uint32_t y,uint32_t z){
+bool check_neighbouring_chunks(Chunk** map, uint32_t map_width, uint32_t map_height, Chunk* chunk, uint32_t chunk_pos, enum FaceOrder face,int x,int y,int z){
     int map_y = chunk_pos/map_width;
     int map_x = chunk_pos % map_width;
     map_x += check_directions[face].x;
     map_y += check_directions[face].z;
-    if(!IN_BOUNDS_2D(map_x,map_y,map_width, map_height) || y < 0 || y >= CHUNK_HEIGHT)
-        return true;
-    x = x % CHUNK_WIDTH;
-    z = z % CHUNK_DEPTH;
+    if(y >= CHUNK_HEIGHT ) return true;
+    if(!IN_BOUNDS_2D(map_x,map_y,map_width, map_height) || y < 0)
+        return false;
+    // if(!IN_BOUNDS_2D(map_x,map_y,map_width, map_height) || y < 0 || y >= CHUNK_HEIGHT)
+    //     return true;
+    x = (uint32_t)x % CHUNK_WIDTH;
+    z = (uint32_t)z % CHUNK_DEPTH;
     return map[INDEX2D(map_x, map_y, map_width)]->map[INDEXCHUNK(x,y,z)] == 0;
 }
 
-bool check_face_directions(Chunk** map, uint32_t map_width, uint32_t map_height, Chunk* chunk, uint32_t chunk_pos, enum FaceOrder face,uint32_t x,uint32_t y,uint32_t z){
+bool check_face_directions(Chunk** map, uint32_t map_width, uint32_t map_height, Chunk* chunk, uint32_t chunk_pos, enum FaceOrder face,int x,int y,int z){
     ivec3_s check_vec = ivec3_add(check_directions[face], ivec3(x,y,z));
     if(!CHUNK_IN_BOUNDS(check_vec.x,check_vec.y,check_vec.z)){
         return check_neighbouring_chunks(map,map_width,map_height,chunk,chunk_pos,face,check_vec.x,check_vec.y,check_vec.z);
@@ -54,7 +57,7 @@ bool check_face_directions(Chunk** map, uint32_t map_width, uint32_t map_height,
 }  
 
 
-void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,Chunk* chunk, uint32_t chunk_pos,uint32_t x, uint32_t y, uint32_t z){
+void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,Chunk* chunk, uint32_t chunk_pos,int x, int y, int z){
     for(int direction = 0; direction < FaceOrder_End;direction++){
         // LOG("Check %d %d %d\n", x , y, z);
         if(check_face_directions(map,map_width,map_height,chunk,chunk_pos,direction,x,y,z)){
