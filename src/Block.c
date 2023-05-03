@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "stdbool.h"
 #include "common.h"
 
 BlockMesh* all_blocks;
@@ -259,7 +260,15 @@ static vec3_s check_directions[FaceOrder_End] =
     vec3(1,0,0) // RIGHT
 };
 
-enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_end, vec3_s direction){
+bool is_inside_face(enum FaceOrder face, vec3_s hit_pos, vec3_s face_center){
+    bool check_x = hit_pos.x <= face_center.x + 0.5 && hit_pos.x >= face_center.x - 0.5; 
+    bool check_y = hit_pos.y <= face_center.y + 0.5 && hit_pos.y >= face_center.y - 0.5; 
+    bool check_z = hit_pos.z <= face_center.z + 0.5 && hit_pos.z >= face_center.z - 0.5; 
+    return check_x && check_y && check_z;
+
+}
+
+enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_end){
     // Since we are dealing with blocks we can make alot of assumptions about their characteristics :)
     LOGLN("ORIGIN");
     LOG_VEC3(ray_origin);
@@ -267,7 +276,7 @@ enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_en
     LOGLN("END");
     LOG_VEC3(ray_end);
 
-    direction = (vec3_sub(ray_end, ray_origin));
+    vec3_s direction = (vec3_sub(ray_end, ray_origin));
     // direction = vec3_normalize(direction);
     LOGLN("DIRECTION");
     LOG_VEC3(direction);
@@ -282,7 +291,10 @@ enum FaceOrder block_intersect(vec3_s block_pos, vec3_s ray_origin,vec3_s ray_en
         if(ABS(denom) > 0.0001f){
             float t = vec3_dot(vec3_sub(face_center, ray_origin), normal) /denom;
             LOGLN("T : %f", t);
-            if(t >= 0 && t <= 1) return i;
+            if(t >= 0 && t <= 1){
+                vec3_s hit_point = vec3_add(ray_origin, vec3_mult_const(direction, t));
+                if(is_inside_face(i,hit_point, face_center)) return i;
+            }
         }
     }
     return FaceOrder_Miss;

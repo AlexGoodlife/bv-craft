@@ -127,7 +127,7 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
           // result.pos_hit = vec3_add(hit_pos_world,vec3(chunk_pos.x,chunk_pos.y,chunk_pos.z));
           result.pos_hit = vec3_cpy(chunk_pos);
           result.pos_hit = vec3(result.pos_hit.x  + (world_pos.x * CHUNK_WIDTH), result.pos_hit.y , result.pos_hit.z + (world_pos.y * CHUNK_DEPTH));
-          result.face_hit = block_intersect(result.pos_hit, vec3_sub(save, world->bottom_left_offset),vec3_sub(pos, world->bottom_left_offset),vec3_normalize(direction));
+          result.face_hit = block_intersect(result.pos_hit, vec3_sub(save, world->bottom_left_offset),vec3_sub(pos, world->bottom_left_offset));
           result.world_hit = world_pos;
           result.chunk_hit = chunk_pos;
           result.hit = true;

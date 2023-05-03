@@ -145,6 +145,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,int mods) 
   if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
     Raycast_Payload raycast = world_raycast(world, state->camera->pos, state->camera->front);
     if(raycast.hit){
+      printf("HIT %d\n", raycast.face_hit);
       uint32_t world_index = INDEX2D(raycast.world_hit.x, raycast.world_hit.y, world->map_width);
       vec3_s new_chunk_vec = vec3_add(vec3_cpy(raycast.chunk_hit), check_directions[raycast.face_hit]);
       uint32_t chunk_index = INDEXCHUNK(new_chunk_vec.x, new_chunk_vec.y,new_chunk_vec.z);
@@ -232,23 +233,26 @@ void init_test_map(){
   for (uint32_t z = 0; z < CHUNK_DEPTH; z++) {
     for (uint32_t y = 0; y < CHUNK_HEIGHT; y++) {
       for (uint32_t x = 0; x < CHUNK_WIDTH; x++) {
+        if(y < CHUNK_HEIGHT/2)
           test_map[z * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + x] = 3;
+        else
+          test_map[z * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + x] = 0;
       }
     }
   }
 
   test_map[0 + 0 + 0] = 0;
 
-  for (int i = 0; i < CHUNK_HEIGHT; i++) {
-    test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + i * CHUNK_WIDTH +
-             CHUNK_WIDTH / 2] = 0;
-  }
-
-  test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + 3 * CHUNK_WIDTH +
-           CHUNK_WIDTH / 2 - 1] = 0;
-
-  test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT +
-           (CHUNK_HEIGHT - 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2] = 1;
+  // for (int i = 0; i < CHUNK_HEIGHT; i++) {
+  //   test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + i * CHUNK_WIDTH +
+  //            CHUNK_WIDTH / 2] = 0;
+  // }
+  //
+  // test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT + 3 * CHUNK_WIDTH +
+  //          CHUNK_WIDTH / 2 - 1] = 0;
+  //
+  // test_map[CHUNK_DEPTH / 2 * CHUNK_WIDTH * CHUNK_HEIGHT +
+  //          (CHUNK_HEIGHT - 2) * CHUNK_WIDTH + CHUNK_WIDTH / 2] = 1;
 }
 
 GLuint loadTexture(const char *path) {
