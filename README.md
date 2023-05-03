@@ -4,11 +4,16 @@
 I'm making this so I can learn OpenGL, multithreading, graphics programming in general and I to also get to know how infinite generation is made.
 As a bonus I get to recreate minecraft. 
 
+![Sample Image](images/early.PNG)
+
+Its not much yet 
+
 ## Features (so far)
 
  -  Infinite world generation
  -  Multithreading via pthreads 
  -  Decent performance I guess
+ -  Block placing and destroying
 
 ## Wanna compile it?
    Download glfw3 and the source code and compile.
@@ -22,7 +27,6 @@ As a bonus I get to recreate minecraft.
 
 ## Todo
    - [ ] Proper chunk generation (Currently its all random)
-   - [ ] Block placing and destroying (Through raycasting)
    - [ ] Transparency
    - [ ] Lighting and fancy shading
    - [ ] Collisions and fps movement 
