@@ -11,28 +11,6 @@ float blockmesh_mapUVy(double v, uint32_t blockID,uint32_t textureWidth, uint32_
     return ((atlasHeight) - (((float)(blockID/(atlasWidth/textureWidth)) + (1-v))*(textureHeight))) / (float)atlasHeight;
 }
 
-// float blockmesh_mapUVx(float u, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-//       
-//     int num_columns = (int) (atlasWidth / textureWidth); // number of columns in the atlas
-//     int column = blockID % num_columns; // column of the desired texture
-//
-//     float tile_u = column * (textureWidth / (double)atlasWidth);
-//
-//     float atlas_u = tile_u + u * (textureWidth / (float)atlasWidth);
-//     // printf("U: %f\n", atlas_u);
-//     return atlas_u;
-// }
-//
-// float blockmesh_mapUVy(float v, uint32_t blockID,uint32_t textureWidth, uint32_t textureHeight, uint32_t atlasWidth, uint32_t atlasHeight){
-//     int num_columns = (int) (atlasWidth / textureWidth); // number of columns in the atlas
-//     int row = blockID / num_columns; // row of the desired texture
-//
-//     float tile_v = row * (textureHeight / (double)atlasHeight);
-//
-//     float atlas_v = tile_v - v) *(textureHeight / (float)atlasHeight);
-//     return atlas_v;
-// }
-
 
 static vec3_s ForwardFace[]  =  
 {
