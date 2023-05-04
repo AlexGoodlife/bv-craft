@@ -59,9 +59,12 @@ void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
   }
 }
 
+void world_generate_chunks(World* world);
+
 World *world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
   World *result = malloc(sizeof(World));
   result->chunk_map = malloc(sizeof(Chunk *) * map_height * map_width);
+  memset(result->chunk_map,0, sizeof(Chunk*)*map_height*map_width);
   // result->chunk_map = memcpy(result->chunk_map, chunk_map,
   //                            sizeof(Chunk *) * map_height * map_width);
   // LOG("WORLD MEMCPY");
@@ -69,18 +72,20 @@ World *world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
   result->map_width = map_width;
   result->center_index = ivec2(map_width/2, map_height/2);
   result->center_coord = center_pos;
+  result->bottom_left_offset = calculate_bottom_left(center_pos, result->map_width,result->map_height);
+  LOG_VEC3(result->bottom_left_offset);
+  result->throttle_max = TICK_THROTTLE;
+  world_generate_chunks(result);
   uint32_t chunks_size = map_width * map_height;
-  for(int i = 0; i < chunks_size;i++){
-    result->chunk_map[i] = chunk_build(test_map);  
-  }
+  // for(int i = 0; i < chunks_size;i++){
+  //   result->chunk_map[i] = chunk_build(test_map);  
+  // }
 
   for(int i = 0; i < chunks_size;i++){
     chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
   }
 
-  result->bottom_left_offset = calculate_bottom_left(center_pos, result->map_width,result->map_height);
-  LOG_VEC3(result->bottom_left_offset);
-  result->throttle_max = TICK_THROTTLE;
+
   
   return result;
 }
@@ -173,6 +178,20 @@ static void world_update_threads(void* args){
   }
 }
 
+void world_generate_chunks(World *world){
+  LOG("BOTTOM LEFT");
+  LOG_VEC3(world->bottom_left_offset);
+  for(int y = 0; y < world->map_height;y++){
+    for(int x = 0; x < world->map_width;x++){
+      if(world->chunk_map[INDEX2D(x,y,world->map_width)] == NULL){
+        vec3_s pos = vec3_add(vec3(x * CHUNK_WIDTH, 0, y * CHUNK_DEPTH), world->bottom_left_offset);
+        uint8_t* map = worldgen_gen_chunk(pos, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_DEPTH);
+        world->chunk_map[INDEX2D(x,y,world->map_width)] = chunk_build(map);
+        free(map);
+      }
+    }
+  }
+}
 
 void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
   vec3_s new_bot_left = calculate_bottom_left(new_pos, world->map_width,world->map_height);
@@ -210,6 +229,8 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
 
   }
 
+#if 0
+
   // GENERATE NEW CHUNKS 
   for(int i = 0; i < chunks_size;i++){
     if(world->chunk_map[i] == NULL){
@@ -219,6 +240,11 @@ void world_update_chunks(World *world, vec3_s new_pos, ivec2_s new_index){
      // world->chunk_map[i] = chunk_build(test_map); 
     }
   }
+
+#else
+  world_generate_chunks(world);
+
+#endif
 }
 
 

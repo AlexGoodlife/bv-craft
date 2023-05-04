@@ -85,6 +85,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   logFile = fopen("log.txt", "w");
   state->thread_pool = threadpool_init(N_THREADS); 
   init_test_map();
+  worldgen_init();
 
   return true;
 }

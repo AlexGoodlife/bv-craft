@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "worldgen.h"
 
 #define VSYNC 0
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
