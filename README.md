@@ -26,7 +26,6 @@ Its not much yet
 
 
 ## Todo
-   - [ ] Proper chunk generation (Currently its all random)
    - [ ] Transparency
    - [ ] Lighting and fancy shading
    - [ ] Collisions and fps movement 
