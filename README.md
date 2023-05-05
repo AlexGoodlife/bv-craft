@@ -4,7 +4,7 @@
 I'm making this so I can learn OpenGL, multithreading, graphics programming in general and I to also get to know how infinite generation is made.
 As a bonus I get to recreate minecraft. 
 
-![Sample Image](images/early.PNG)
+![Sample Image](images/world_gen.PNG)
 
 Its not much yet 
 
