@@ -130,7 +130,7 @@ static vec2_s RightFaceUV[] = {
     vec2(1.0f,0.0f), // Bottom Right
 };
 
-FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, uint32_t texture_pos_offset){
+FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, int texture_pos_offset){
     FaceMesh result;
     result.texture_pos_offset = texture_pos_offset;
     memcpy(result.vertexData, vertexData, sizeof(vec3_s) * VERTEXES_PER_FACE);
@@ -154,7 +154,7 @@ void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionO
 }
 
 #define WINDOW_WIDTH 1280
-BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position, uint32_t* face_texture_offsets){
+BlockMesh blockmesh_build_block(enum BlockID ID,int texture_atlas_position, int* face_texture_offsets){
     BlockMesh result;
     result.id = ID;
     result.texture_atlas_position = texture_atlas_position;
@@ -186,7 +186,7 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
         for(int j = 0; j < VERTEXES_PER_FACE;j++){
             result.faces[i].uvData[j].x = blockmesh_mapUVx(
                 result.faces[i].uvData[j].x,
-                result.id + result.faces[i].texture_pos_offset,
+                result.texture_atlas_position + result.faces[i].texture_pos_offset,
                 TEXTURE_WIDTH,
                 TEXTURE_HEIGHT,
                 ATLAS_WIDTH,
@@ -194,7 +194,7 @@ BlockMesh blockmesh_build_block(enum BlockID ID,uint32_t texture_atlas_position,
             );
             result.faces[i].uvData[j].y = blockmesh_mapUVy(
                 result.faces[i].uvData[j].y,
-                result.id + result.faces[i].texture_pos_offset,
+                result.texture_atlas_position + result.faces[i].texture_pos_offset,
                 TEXTURE_WIDTH,
                 TEXTURE_HEIGHT,
                 ATLAS_WIDTH,
@@ -212,10 +212,11 @@ void blockmesh_buildAllBlocks(){
 
     // Now we build these suckers one by one
 
-    all_blocks[Gravel] = blockmesh_build_block(Gravel, 0, (uint32_t[]){0,0,0,0,0,0});
-    all_blocks[Stone] = blockmesh_build_block(Stone, 1, (uint32_t[]){0,0,0,0,0,0});
-    all_blocks[Grass] = blockmesh_build_block(Grass, 2, (uint32_t[]){1,1,0,48,1,1});
-
+    all_blocks[Gravel] = blockmesh_build_block(Gravel, 0, (int[]){0,0,0,0,0,0});
+    all_blocks[Stone] = blockmesh_build_block(Stone, 1, (int[]){0,0,0,0,0,0});
+    all_blocks[Grass] = blockmesh_build_block(Grass, 2, (int[]){1,1,0,48,1,1});
+    all_blocks[Water] = blockmesh_build_block(Water, 416, (int[]){0,0,0,0,0,0});
+    all_blocks[Dirt] = blockmesh_build_block(Dirt, 50, (int[]){0,0,0,0,0,0});
 }
 
 static vec3_s check_directions[FaceOrder_End] = 
