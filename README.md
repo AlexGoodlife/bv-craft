@@ -29,3 +29,8 @@ Its not much yet
    - [ ] Transparency
    - [ ] Lighting and fancy shading
    - [ ] Collisions and fps movement 
+
+## Libraries used
+
+ - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) GOTAED library
+ - [cutility](https://github.com/AlexGoodlife/C-utility) my library :)
