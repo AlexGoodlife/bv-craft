@@ -32,17 +32,18 @@ enum FaceOrder{
 };
 
 enum BlockID{
-    Gravel ,
+    Gravel,
     Stone,
     Grass,
+    Water,
+    Dirt,
     Block_count
 };
 
 typedef struct{
     vec3_s vertexData[VERTEXES_PER_FACE];
     vec2_s uvData[VERTEXES_PER_FACE];
-    uint32_t indicesData[FACE_INDICES_COUNT];
-    uint32_t texture_pos_offset;
+    int texture_pos_offset;
 }FaceMesh;
 
 
@@ -51,8 +52,8 @@ typedef struct
     FaceMesh faces[N_FACES];
     uint32_t vertexCount;
     uint32_t indicesCount;
-    uint32_t id;
-    uint32_t texture_atlas_position;
+    enum BlockID id;
+    int texture_atlas_position;
 }BlockMesh;
 
 
