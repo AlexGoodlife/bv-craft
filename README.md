@@ -34,5 +34,6 @@ Its not much yet
 
  - [GLFW3](https://www.glfw.org/)
  - [GLAD](https://glad.dav1d.de/)
- - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) GOTAED library
+ - [stb_image](https://github.com/nothings/stb) GOATED library
+ - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) Another GOTAED library
  - [cutility](https://github.com/AlexGoodlife/C-utility) my library :)
