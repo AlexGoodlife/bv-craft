@@ -32,5 +32,7 @@ Its not much yet
 
 ## Libraries used
 
+ - [GLFW3](https://www.glfw.org/)
+ - [GLAD](https://glad.dav1d.de/)
  - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) GOTAED library
  - [cutility](https://github.com/AlexGoodlife/C-utility) my library :)
