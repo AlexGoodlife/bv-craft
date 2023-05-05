@@ -213,10 +213,11 @@ void blockmesh_buildAllBlocks(){
     // Now we build these suckers one by one
 
     all_blocks[Gravel] = blockmesh_build_block(Gravel, 0, (int[]){0,0,0,0,0,0});
-    all_blocks[Stone] = blockmesh_build_block(Stone, 1, (int[]){0,0,0,0,0,0});
+    all_blocks[Snow] = blockmesh_build_block(Snow, 1, (int[]){0,0,171,49,0,0});
     all_blocks[Grass] = blockmesh_build_block(Grass, 2, (int[]){1,1,0,48,1,1});
     all_blocks[Water] = blockmesh_build_block(Water, 416, (int[]){0,0,0,0,0,0});
     all_blocks[Dirt] = blockmesh_build_block(Dirt, 50, (int[]){0,0,0,0,0,0});
+    all_blocks[Stone] = blockmesh_build_block(Stone, 19, (int[]){0,0,0,0,0,0});
 }
 
 static vec3_s check_directions[FaceOrder_End] = 

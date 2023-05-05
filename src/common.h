@@ -33,6 +33,10 @@ extern FILE *logFile;
 
 #define IN_BOUNDS_3D(x,y,z,width,height,depth) IN_BOUNDS_2D(x,y,width,height) && ((z) >= 0 && (z) < depth)
 
+#define NORMALIZE(original_value, original_min, original_max, target_min, target_max) (((original_value - original_min) / (original_max - original_min)) * (target_max - target_min)) + target_min
+
+#define CLAMP(num, low_bound, high_bound) num < low_bound ? low_bound : num > high_bound ? high_bound : num
+
 static inline int random_number(int lower, int upper){
     return (rand() % (upper-lower+1)) + lower;
 }

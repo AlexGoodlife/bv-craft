@@ -8,11 +8,29 @@ fnl_state noise;
 void worldgen_init(){
   noise = fnlCreateState();
   noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
+  noise.frequency = 0.005f;
+  noise.fractal_type = FNL_FRACTAL_FBM;
+  noise.octaves = 4;
+
 }
 
 static void fill_map_height(uint8_t* map,uint32_t width, uint32_t height, uint32_t x, uint32_t z, int max_height){
+  enum BlockID to_fill = Stone;
+  if(max_height <= 0.1f*height){
+    to_fill = Water;
+  }
   for(int i = 0; i < max_height;i++){
-    map[INDEX3D(x,i,z,width,height)] = Grass+1;
+    if(i >= max_height/2 && to_fill != Water){
+      to_fill = Dirt;
+    }
+    if(i == max_height-1 && to_fill != Water){
+      if(max_height >= 0.40f*height){
+        to_fill = Snow;
+      }
+      else
+        to_fill = Grass;
+    }
+    map[INDEX3D(x,i,z,width,height)] = to_fill+1;
   }
 }
 
@@ -37,6 +55,10 @@ uint8_t* worldgen_gen_chunk(vec3_s pos, uint32_t width, uint32_t height, uint32_
     {
       float noise_value = noise_data[INDEX2D(x,y,width)];
       noise_value = (noise_value+1)/2;
+      noise_value = pow(noise_value, 4.2069f);
+      noise_value = round(noise_value*84)/84.0f;
+      noise_value = NORMALIZE(noise_value, 0.0f,1.0f,0.1f,0.90f);
+      // noise_value = CLAMP(noise_value,0.10f,0.75f);
       int max_height = height* noise_value;
       fill_map_height(result,width,height,x,y,max_height);
     }

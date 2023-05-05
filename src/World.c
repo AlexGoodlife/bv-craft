@@ -10,7 +10,7 @@
 #include <string.h> //memcpy
                     
 #define NUMBER_OF_THREADS 8
-#define TICK_THROTTLE 2
+#define TICK_THROTTLE 4
 
 #define MULTITHREAD 1
 
@@ -76,14 +76,14 @@ World *world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
   LOG_VEC3(result->bottom_left_offset);
   result->throttle_max = TICK_THROTTLE;
   world_generate_chunks(result);
-  uint32_t chunks_size = map_width * map_height;
+  // uint32_t chunks_size = map_width * map_height;
   // for(int i = 0; i < chunks_size;i++){
   //   result->chunk_map[i] = chunk_build(test_map);  
   // }
 
-  for(int i = 0; i < chunks_size;i++){
-    chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
-  }
+  // for(int i = 0; i < chunks_size;i++){
+  //   chunk_update(result->chunk_map,result->map_width, result->map_height,i, result->chunk_map[i] );
+  // }
 
 
   
