@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -16,8 +17,8 @@ float lastFrame = 0.0f;
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
-#define WORLD_WIDTH 33
-#define WORLD_HEIGHT 33
+#define WORLD_WIDTH 55
+#define WORLD_HEIGHT 55
 
 // #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
@@ -25,6 +26,9 @@ World *world;
 uint8_t* test_map;
 
 void run() {
+
+  assert(WORLD_HEIGHT % 2 != 0);
+  assert(WORLD_WIDTH % 2 != 0);
 
   GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
 
@@ -57,7 +61,7 @@ void run() {
       tickTime = currentFrame;
       world_update(world, state->camera->pos, state->thread_pool);
     }
-    world_draw(world, shader, projection, camera_getViewMat(state->camera));
+    world_draw(world, shader ,state->camera->pos,projection, camera_getViewMat(state->camera));
 
     glfwPollEvents();
     glfwSwapBuffers(state->window);
