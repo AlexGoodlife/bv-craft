@@ -9,7 +9,7 @@
 #define N_FACES 6
 #define VERTEXES_PER_FACE 6
 #define FACE_INDICES_COUNT 6
-#define FLOATS_PER_VERTEX 5
+#define FLOATS_PER_VERTEX 8
 
 #define TRIANGLES_PER_FACE 2
 
@@ -44,6 +44,7 @@ enum BlockID{
 typedef struct{
     vec3_s vertexData[VERTEXES_PER_FACE];
     vec2_s uvData[VERTEXES_PER_FACE];
+    vec3_s normal;
     int texture_pos_offset;
 }FaceMesh;
 
@@ -63,9 +64,9 @@ extern BlockMesh* all_blocks;
 BlockMesh blockmesh_build(enum BlockID ID);
 
 // void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices);
-void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset);
-
-void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
+// void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset);
+//
+// void blockmesh_copyIndicesData(BlockMesh* mesh, uint32_t* indices);
 
 void blockmesh_buildAllBlocks();
 void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset);

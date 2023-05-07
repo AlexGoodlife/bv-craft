@@ -158,6 +158,7 @@ void checkCompileErrors(GLuint shader, const char* type)
         {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
             fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type:%s\n %s\n", type, infoLog);
+            exit(-1);
         }
     }
     else
@@ -167,6 +168,7 @@ void checkCompileErrors(GLuint shader, const char* type)
         {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
             fprintf(stderr, "ERROR::SHADER_COMPILATION_ERROR of type:%s\n %s\n", type, infoLog);
+            exit(-1);
         }
     }
 }

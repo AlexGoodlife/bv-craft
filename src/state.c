@@ -67,7 +67,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   glDisable(GL_MULTISAMPLE);
 
   shader =
-      shader_load("src/shaders/textured.vert", "src/shaders/textured.frag");
+      shader_load("src/shaders/lighted.vert", "src/shaders/lighted.frag");
   if (errno) {
     ERROR("FAILED TO LOAD FILE");
     return false;
@@ -86,6 +86,13 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   state->thread_pool = threadpool_init(N_THREADS); 
   init_test_map();
   worldgen_init();
+
+  shader_use(shader);
+  shader_setVec3l(shader, "dirlight.direction", 0 -0.2f, -1.0f, -0.3f);
+  shader_setVec3l(shader, "dirlight.ambient", 0.4f, 0.4f,0.4f);
+  shader_setVec3l(shader, "dirlight.diffuse",0.5f, 0.5f, 0.5f);
+  shader_setVec3l(shader, "dirlight.specular",0.5f, 0.5f,0.5f);
+  shader_setFloat(shader, "shininess", 32.0f);
 
   return true;
 }
@@ -231,24 +238,24 @@ GLuint loadTexture(const char *path) {
       format = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, data);
 
     int base_mip_level = 0;
     int max_mip_level = 4; // for example, use up to the 4th mipmap level
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, base_mip_level);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, max_mip_level);    
     glGenerateMipmap(GL_TEXTURE_2D);
 
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     // float max_anisotropy = 0.0f;
     // glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropy);
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, max_anisotropy);
-    //
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
 
     stbi_image_free(data);
   } else {

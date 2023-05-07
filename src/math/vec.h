@@ -124,7 +124,7 @@ static inline float vec4_dot(vec4_s v, vec4_s u){
 static inline vec4_s vec4_normalize(vec4_s v){
     vec4_s result = vec4(v.x, v.y, v.z, v.w);
     float dot = vec4_dot(v,v);
-    float inverse = sqrtf(ABS(dot));
+    double inverse = sqrtf(ABS(dot));
     result.x /= inverse; 
     result.y /= inverse;
     result.z /= inverse;

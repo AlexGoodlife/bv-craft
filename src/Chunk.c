@@ -59,7 +59,6 @@ bool check_face_directions(Chunk** map, uint32_t map_width, uint32_t map_height,
 
 void check_all_directions(Chunk** map, uint32_t map_width, uint32_t map_height,Chunk* chunk, uint32_t chunk_pos,int x, int y, int z){
     for(int direction = 0; direction < FaceOrder_End;direction++){
-        // LOG("Check %d %d %d\n", x , y, z);
         if(check_face_directions(map,map_width,map_height,chunk,chunk_pos,direction,x,y,z)){
             facemesh_copyVertexData(
                 &all_blocks[chunk->map[INDEXCHUNK(x,y,z)]-1].faces[direction], 
@@ -100,6 +99,8 @@ Chunk* chunk_build(uint8_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     return result;
 }
 
+bool t = true;
+
 void chunk_prepare(Chunk* chunk){
 
     glBindVertexArray(chunk->mesh->VAO);
@@ -109,13 +110,22 @@ void chunk_prepare(Chunk* chunk){
     glBufferData(GL_ARRAY_BUFFER, chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE *sizeof(float), chunk->mesh->vertices, GL_STATIC_DRAW);
 
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float)*3));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*3));
     glEnableVertexAttribArray(1);
 
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*5));
+    glEnableVertexAttribArray(2);
+
     chunk->is_prepared = true;
+    if(t){
+        for(int i = 0; i < chunk->mesh->faceCount * FLOATS_PER_VERTEX * VERTEXES_PER_FACE;i++){
+            LOGLN("%f\n", chunk->mesh->vertices[i]);
+        }
+        t = false;
+    }
     free(chunk->mesh->vertices);
     chunk->mesh->vertices= NULL;
     

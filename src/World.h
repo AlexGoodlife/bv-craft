@@ -30,7 +30,7 @@ typedef struct {
 }Raycast_Payload;
 
 World* world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos);
-void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view);
+void world_draw(World* world, Shader_id shader, vec3_s view_pos, mat4_s projection, mat4_s view);
 
 void world_destroy(World* world);
 ivec2_s world_get_index(World *world, vec3_s pos);

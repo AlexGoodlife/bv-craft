@@ -30,7 +30,7 @@ ivec2_s world_get_index(World *world, vec3_s pos){
   return ivec2(x, y);
 }
 
-void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
+void world_draw(World* world, Shader_id shader,vec3_s view_pos, mat4_s projection, mat4_s view){
     shader_use(shader);
     uint32_t chunks_size = world->map_height * world->map_width;
     for(int i = 0; i < chunks_size;i++){
@@ -47,11 +47,13 @@ void world_draw(World* world, Shader_id shader, mat4_s projection, mat4_s view){
         vec3_s translate_add = vec3_add(translate, world->bottom_left_offset);
         model = linealg_translate(
             &model, translate_add);
-
+        
+        view_pos = vec3_add(view_pos, world->bottom_left_offset);
         // pass transformation matrices to the shader
         shader_setMat4(shader, "projection", &projection);
         shader_setMat4(shader, "model", &model);
         shader_setMat4(shader, "view", &view);
+        shader_setVec3(shader, "viewPos",&view_pos);
 
         chunk_render(world->chunk_map[INDEX2D(x, y, world->map_width)]);
     }
@@ -73,7 +75,7 @@ World *world_init(uint32_t map_width, uint32_t map_height, vec3_s center_pos) {
   result->center_index = ivec2(map_width/2, map_height/2);
   result->center_coord = center_pos;
   result->bottom_left_offset = calculate_bottom_left(center_pos, result->map_width,result->map_height);
-  LOG_VEC3(result->bottom_left_offset);
+  // LOG_VEC3(result->bottom_left_offset);
   result->throttle_max = TICK_THROTTLE;
   world_generate_chunks(result);
   // uint32_t chunks_size = map_width * map_height;
@@ -179,8 +181,8 @@ static void world_update_threads(void* args){
 }
 
 void world_generate_chunks(World *world){
-  LOG("BOTTOM LEFT");
-  LOG_VEC3(world->bottom_left_offset);
+  // LOG("BOTTOM LEFT");
+  // LOG_VEC3(world->bottom_left_offset);
   for(int y = 0; y < world->map_height;y++){
     for(int x = 0; x < world->map_width;x++){
       if(world->chunk_map[INDEX2D(x,y,world->map_width)] == NULL){

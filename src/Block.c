@@ -32,6 +32,7 @@ static vec2_s ForwardFaceUV[] = {
     vec2(1.0f,0.0f), // bottom right
 };
 
+
 static vec3_s BackFace[]  =  
 {
     vec3(-.5f, -.5f, 0.5f), // Bottom left // looking from the inside
@@ -130,40 +131,53 @@ static vec2_s RightFaceUV[] = {
     vec2(1.0f,0.0f), // Bottom Right
 };
 
-FaceMesh facemesh_build(vec3_s* vertexData, vec2_s* uvData, int texture_pos_offset){
+static vec3_s NormalData[FaceOrder_End] = 
+{
+    vec3(0.0f,0.0f,-1.0f), // FRONT
+    vec3(0.0f,0.0f,1.0f), // BACK
+    vec3(0.0f,1.0f,0.0f), // TOP
+    vec3(0.0f,-1.0f,0.0f), // BOTTOM 
+    vec3(-1.0f,0.0f,0.0f), // LEFT
+    vec3(1.0f,0.0f,0.0f) // RIGHT
+};
+
+FaceMesh facemesh_build(enum FaceOrder face,vec3_s* vertexData, vec2_s* uvData, int texture_pos_offset){
     FaceMesh result;
     result.texture_pos_offset = texture_pos_offset;
     memcpy(result.vertexData, vertexData, sizeof(vec3_s) * VERTEXES_PER_FACE);
     memcpy(result.uvData, uvData, sizeof(vec2_s) * VERTEXES_PER_FACE);
+    // memcpy(&result.normal, NormalData + face, sizeof(vec3_s));
+    result.normal = NormalData[face];
     return result;
 }
 
 void facemesh_copyVertexData(FaceMesh* mesh,float* vertices, vec3_s positionOffset){
     for(int j = 0; j < VERTEXES_PER_FACE;j++){
         vec3_s offseted = vec3_add(mesh->vertexData[j],positionOffset);
-        memcpy(vertices + j*5, &offseted, sizeof(float) * 3);
-        memcpy(vertices + j*5+3, &mesh->uvData[j], sizeof(float) * 2);
+        memcpy(vertices + j*FLOATS_PER_VERTEX,   &offseted,        sizeof(float) * 3);
+        memcpy(vertices + j*FLOATS_PER_VERTEX+3, &mesh->uvData[j], sizeof(float) * 2);
+        memcpy(vertices + j*FLOATS_PER_VERTEX+5, &mesh->normal,    sizeof(float) * 3);
     }
 }
 
 
-void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset){
-    for(int i = 0; i < FaceOrder_End;i++){
-        facemesh_copyVertexData(&mesh->faces[i], vertices + (i* VERTEXES_PER_FACE*FLOATS_PER_VERTEX),positionOffset);
-    }
-}
+// void blockmesh_copyVertexData(BlockMesh *mesh, float* vertices, vec3_s positionOffset){
+//     for(int i = 0; i < FaceOrder_End;i++){
+//         facemesh_copyVertexData(&mesh->faces[i], vertices + (i* VERTEXES_PER_FACE*FLOATS_PER_VERTEX),positionOffset);
+//     }
+// }
 
 #define WINDOW_WIDTH 1280
 BlockMesh blockmesh_build_block(enum BlockID ID,int texture_atlas_position, int* face_texture_offsets){
     BlockMesh result;
     result.id = ID;
     result.texture_atlas_position = texture_atlas_position;
-    result.faces[FaceOrder_Front] = facemesh_build(ForwardFace,ForwardFaceUV, face_texture_offsets[FaceOrder_Front]);
-    result.faces[FaceOrder_Back] = facemesh_build(BackFace, BackFaceUV,face_texture_offsets[FaceOrder_Back]);
-    result.faces[FaceOrder_Top] = facemesh_build(UpFace,UpFaceUV,face_texture_offsets[FaceOrder_Top]);
-    result.faces[FaceOrder_Bottom] = facemesh_build(DownFace, DownFaceUV,face_texture_offsets[FaceOrder_Bottom]);
-    result.faces[FaceOrder_Left] = facemesh_build(LeftFace, LeftFaceUV,face_texture_offsets[FaceOrder_Left]);
-    result.faces[FaceOrder_Right] = facemesh_build(RightFace, RightFaceUV,face_texture_offsets[FaceOrder_Right]);
+    result.faces[FaceOrder_Front] = facemesh_build(FaceOrder_Front,ForwardFace,ForwardFaceUV, face_texture_offsets[FaceOrder_Front]);
+    result.faces[FaceOrder_Back] = facemesh_build(FaceOrder_Back,BackFace, BackFaceUV,face_texture_offsets[FaceOrder_Back]);
+    result.faces[FaceOrder_Top] = facemesh_build(FaceOrder_Top,UpFace,UpFaceUV,face_texture_offsets[FaceOrder_Top]);
+    result.faces[FaceOrder_Bottom] = facemesh_build(FaceOrder_Bottom,DownFace, DownFaceUV,face_texture_offsets[FaceOrder_Bottom]);
+    result.faces[FaceOrder_Left] = facemesh_build(FaceOrder_Left,LeftFace, LeftFaceUV,face_texture_offsets[FaceOrder_Left]);
+    result.faces[FaceOrder_Right] = facemesh_build(FaceOrder_Right,RightFace, RightFaceUV,face_texture_offsets[FaceOrder_Right]);
     // float half_pixel_size = ((float)ATLAS_WIDTH/ WINDOW_WIDTH)/25;
     for(int i = 0; i < FaceOrder_End;i++){
         // result.faces[i].uvData[0].x += half_pixel_size;
@@ -202,7 +216,7 @@ BlockMesh blockmesh_build_block(enum BlockID ID,int texture_atlas_position, int*
             );
         }
     }
-    result.vertexCount = N_FACES * VERTEXES_PER_FACE * 5;
+    result.vertexCount = N_FACES * VERTEXES_PER_FACE * FLOATS_PER_VERTEX;
     result.indicesCount = FACE_INDICES_COUNT * N_FACES;
     return result;
 }

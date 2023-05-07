@@ -35,8 +35,6 @@ static void fill_map_height(uint8_t* map,uint32_t width, uint32_t height, uint32
 }
 
 uint8_t* worldgen_gen_chunk(vec3_s pos, uint32_t width, uint32_t height, uint32_t depth){
-  LOGLN("POS");
-  LOG_VEC3(pos);
   uint8_t* result = calloc(depth * width * height,sizeof(uint8_t));
   float noise_data[width*depth];
   int index = 0;

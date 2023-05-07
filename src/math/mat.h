@@ -44,8 +44,8 @@ static inline mat4_s linealg_mat4cpy(mat4_s* base){
 
 static inline mat4_s linealg_perspective(float aspectRatio, float fov, float near, float far){
     mat4_s result = init_mat4_zero;
-    float fov_calc = tan(fov/2);
-    float plane_calc = far/(far - near);
+    double fov_calc = tan(fov/2);
+    double plane_calc = far/(far - near);
 
     result.m[0][0] = 1/(aspectRatio * fov_calc); 
     result.m[1][1] = 1/fov_calc;
@@ -61,11 +61,8 @@ static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s v){
 
     vec3_s axis = vec3_normalize(v);
     vec3_s temp = vec3((1-cs)*axis.x, (1-cs)*axis.y, (1-cs)*axis.z);
-    // vec<3, T, Q> axis(normalize(v));
-    // vec<3, T, Q> temp((T(1) - c) * axis);
 
     mat4_s rotate = init_mat4_zero;
-    // mat<4, 4, T, Q> Rotate;
     rotate.m[0][0] = cs + temp.x * axis.x;
     rotate.m[0][1] = temp.x * axis.y + sn * axis.z;
     rotate.m[0][2] = temp.x * axis.z - sn * axis.y;
