@@ -26,6 +26,7 @@ Its not much yet
 
 
 ## Todo
+   - [ ] Fix stupid texture aliasing
    - [ ] Transparency
    - [ ] Lighting and fancy shading
    - [ ] Collisions and fps movement 
