@@ -82,16 +82,15 @@ void camera_processScrollWheel(Camera* camera, float yOffset){
 
 void updateCamera(Camera* camera){
     vec3_s front = vec3(0.0f,0.0f,0.0f);
-    front.x = cos((double)radians(camera->yaw)) * cos((double)radians(camera->pitch));
-    front.y = sin((double)radians(camera->pitch));
-    front.z = -(sin((double)radians(camera->yaw)) * cos((double)radians(camera->pitch)));
+    front.x = cos(radians(camera->yaw)) * cos(radians(camera->pitch));
+    front.y = sin(radians(camera->pitch));
+    front.z = -(sin(radians(camera->yaw)) * cos(radians(camera->pitch)));
 
 
     camera->front = vec3_normalize(front);
 
     vec3_s temp_right = vec3_cross(camera->worldUp,camera->front);
     camera->right = vec3_normalize(temp_right);
-    // printf("%f %f %f", camera->right.x, camera->right.y,camera->right.z);
     vec3_s temp_up = vec3_cross(camera->front,camera->right);
     camera->up = vec3_normalize(temp_up);
 

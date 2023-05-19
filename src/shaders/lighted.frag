@@ -41,5 +41,11 @@ void main()
 
     vec3 result = CalcDirLight(dirlight, norm,viewDir);
 
-    FragColor = vec4(result, 1.0f);
+  //vec3 new_normal;
+  //new_normal.x = Normal.x * 0.5 + 0.5;
+  //new_normal.y = Normal.y * 0.5 + 0.5;
+  //new_normal.z = Normal.z * 0.5 + 0.5;
+
+  //FragColor = vec4(new_normal, 1.0f);
+   FragColor = vec4(result, 1.0f);
 }

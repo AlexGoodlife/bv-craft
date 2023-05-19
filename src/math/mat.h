@@ -35,7 +35,7 @@ typedef struct mat4_s
 
 
 static inline mat4_s linealg_mat4cpy(mat4_s* base){
-    mat4_s result;
+    mat4_s result = init_mat4_zero;
     for(int i = 0; i < 4;i++)
         memcpy(result.m[i], base->m[i],sizeof(float) * 4);
     return result;
@@ -90,7 +90,7 @@ static inline mat4_s linealg_rotate(mat4_s* base, float angle, vec3_s v){
 static inline mat4_s linealg_translate(mat4_s* base, vec3_s v){
     mat4_s result = linealg_mat4cpy(base);
     for(int i = 0; i < 4;i++){
-        result.m[3][i] = base->m[0][i] * v.x + base->m[1][i] * v.y + base->m[2][i] * v.z + base->m[3][i];
+        result.m[3][i] = (base->m[0][i] * v.x) + (base->m[1][i] * v.y) + (base->m[2][i] * v.z) + base->m[3][i];
     }
 	return result;
 }

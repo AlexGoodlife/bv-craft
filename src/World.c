@@ -43,10 +43,9 @@ void world_draw(World* world, Shader_id shader,vec3_s view_pos, mat4_s projectio
         if(world->chunk_map[INDEX2D(x, y, world->map_width)] == NULL) continue;
         if(!world->chunk_map[INDEX2D(x, y, world->map_width)]->is_prepared) continue;
         mat4_s model = init_mat4_id;
-        vec3_s translate = vec3(x * CHUNK_WIDTH, 0.0f, y * CHUNK_DEPTH);
+        vec3_s translate = vec3((float)(x * CHUNK_WIDTH), 0.0f, (float)(y * CHUNK_DEPTH));
         vec3_s translate_add = vec3_add(translate, world->bottom_left_offset);
-        model = linealg_translate(
-            &model, translate_add);
+        model = linealg_translate(&model, translate_add);
         
         view_pos = vec3_add(view_pos, world->bottom_left_offset);
         // pass transformation matrices to the shader
