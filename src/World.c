@@ -149,7 +149,13 @@ Raycast_Payload world_raycast(World *world, vec3_s pos, vec3_s direction){
 }
 
 typedef struct{
-  Chunk** map;
+  Chunk* chunk;
+  int world_index;
+}Chunk_set;
+
+typedef struct{
+  Chunk_set* map;
+  Chunk** world_map;
   uint32_t map_width;
   uint32_t map_height;
   int start;
@@ -166,13 +172,13 @@ static void world_update_threads(void* args){
   Update_Args *arguments = (Update_Args*)args;
   int count = 0;
   for(int i = arguments->start; i < arguments->end && count < arguments->throttle_max; i++){
-    if(!arguments->map[i]->is_updated){
+    if(!arguments->map[i].chunk->is_updated){
       chunk_update(
-        arguments->map,
+        arguments->world_map,
         arguments->map_width,
         arguments->map_height,
-        i,
-        arguments->map[i]
+        arguments->map[i].world_index,
+        arguments->map[i].chunk
       );
       count++;
     }
@@ -266,21 +272,31 @@ void world_update_new_chunks(World* world, Threadpool* pool){
   if(!world->chunk_map[chunks_size/2]->is_updated){
     chunk_update(world->chunk_map, world->map_width, world->map_width, chunks_size/2, world->chunk_map[chunks_size/2]);
   }
+
+  Chunk_set chunks_to_update[chunks_size];
+  int n_chunks_to_update = 0;
+
+  for(int i = 0; i < chunks_size;i++){
+    if(!world->chunk_map[i]->is_updated){
+      chunks_to_update[n_chunks_to_update++] = (Chunk_set){.chunk = world->chunk_map[i], .world_index = i};
+    }
+  }
   // pthread_t threads[NUMBER_OF_THREADS];
   Update_Args args[NUMBER_OF_THREADS];
   // Task *tasks[NUMBER_OF_THREADS];
   Task tasks[NUMBER_OF_THREADS];
-  int n_chunks = ceil((double)(chunks_size) / NUMBER_OF_THREADS);
+  int n_chunks = ceil((double)(n_chunks_to_update) / NUMBER_OF_THREADS);
   int used_args = 0;
   for(int i = 0; i < NUMBER_OF_THREADS;i++){
     used_args++;
     int start = i*n_chunks;
     int end = start + n_chunks;
-    end = MIN(end, chunks_size);
+    end = MIN(end, n_chunks_to_update);
     Update_Args arg ={
       .map_width = world->map_width,
       .map_height = world->map_height,
-      .map = world->chunk_map,
+      .world_map = world->chunk_map,
+      .map = chunks_to_update,
       .end = end,
       .start = start,
       .throttle_max = world->throttle_max,
@@ -289,7 +305,7 @@ void world_update_new_chunks(World* world, Threadpool* pool){
     tasks[i].arg = args + i;
     tasks[i].func = &world_update_threads;
     threadpool_add_task(pool,tasks + i);
-    if(end == chunks_size)break;
+    if(end == n_chunks_to_update)break;
   }
   threadpool_wait(pool);
 #endif

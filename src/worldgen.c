@@ -53,7 +53,7 @@ uint8_t* worldgen_gen_chunk(vec3_s pos, uint32_t width, uint32_t height, uint32_
     {
       float noise_value = noise_data[INDEX2D(x,y,width)];
       noise_value = (noise_value+1)/2;
-      noise_value = pow(noise_value, 4.2069f);
+      noise_value = pow(noise_value, 6.2069f);
       noise_value = round(noise_value*84)/84.0f;
       noise_value = NORMALIZE(noise_value, 0.0f,1.0f,0.1f,0.90f);
       // noise_value = CLAMP(noise_value,0.10f,0.75f);
