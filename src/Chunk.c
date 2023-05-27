@@ -13,6 +13,7 @@ ChunkMesh* chunckmesh_init(){
     result->vertices = NULL;
     glGenVertexArrays(1,&result->VAO);
     glGenBuffers(1, &result->VBO);
+    glCheckError();
     return result;
 }
 
@@ -99,33 +100,32 @@ Chunk* chunk_build(uint8_t map[CHUNK_DEPTH * CHUNK_WIDTH*CHUNK_HEIGHT]){
     return result;
 }
 
-bool t = true;
 
 void chunk_prepare(Chunk* chunk){
-
     glBindVertexArray(chunk->mesh->VAO);
-
+    glCheckError();
 
     glBindBuffer(GL_ARRAY_BUFFER, chunk->mesh->VBO);
     glBufferData(GL_ARRAY_BUFFER, chunk->mesh->faceCount * FLOATS_PER_VERTEX*VERTEXES_PER_FACE *sizeof(float), chunk->mesh->vertices, GL_STATIC_DRAW);
+    glCheckError();
 
 
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glCheckError();
 
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*3));
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)(sizeof(float)*3));
     glEnableVertexAttribArray(1);
+    glCheckError();
 
-    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*5));
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)(sizeof(float)*5));
     glEnableVertexAttribArray(2);
 
+    glVertexAttribPointer(3,1,GL_FLOAT,GL_FALSE, FLOATS_PER_VERTEX * sizeof(float), (void*)(sizeof(float)*8));
+    glEnableVertexAttribArray(3);
+    glCheckError();
+
     chunk->is_prepared = true;
-    if(t){
-        for(int i = 0; i < chunk->mesh->faceCount * FLOATS_PER_VERTEX * VERTEXES_PER_FACE;i++){
-            LOGLN("%f\n", chunk->mesh->vertices[i]);
-        }
-        t = false;
-    }
     free(chunk->mesh->vertices);
     chunk->mesh->vertices= NULL;
     
@@ -134,7 +134,9 @@ void chunk_prepare(Chunk* chunk){
 
 void chunk_render(Chunk* chunk){
     glBindVertexArray(chunk->mesh->VAO);
+    glCheckError();
     glDrawArrays(GL_TRIANGLES,0, chunk->mesh->faceCount*VERTEXES_PER_FACE);
+    glCheckError();
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }

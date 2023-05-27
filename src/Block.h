@@ -9,7 +9,7 @@
 #define N_FACES 6
 #define VERTEXES_PER_FACE 6
 #define FACE_INDICES_COUNT 6
-#define FLOATS_PER_VERTEX 8
+#define FLOATS_PER_VERTEX 9
 
 #define TRIANGLES_PER_FACE 2
 

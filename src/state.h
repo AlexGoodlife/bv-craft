@@ -18,6 +18,11 @@
 
 #define N_THREADS 8
 
+#define TEXTURE_WIDTH 16
+#define TEXTURE_HEIGHT 16
+#define ATLAS_WIDTH 512
+#define ATLAS_HEIGHT 256
+
 #define BACKGROUND_COLOR_R 0.0f
 #define BACKGROUND_COLOR_G 181.0f
 #define BACKGROUND_COLOR_B 226.0f
@@ -45,5 +50,5 @@ void close();
 void processInput(float deltaTime);
 void displayFPS(float deltaTime, float lastFrame);
 GLuint loadTexture(const char *path);
-
+GLuint loadTextureArray(const char* path);
 #endif
