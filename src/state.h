@@ -17,6 +17,7 @@
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
 #define N_THREADS 8
+#define MSAA_SAMPLES 16
 
 #define TEXTURE_WIDTH 16
 #define TEXTURE_HEIGHT 16

@@ -4,14 +4,6 @@
 
 BlockMesh* all_blocks;
 
-float blockmesh_mapUVx(double u, int blockID,int textureWidth, int textureHeight, int atlasWidth, int atlasHeight){
-    return fmod(((textureWidth)*(blockID + u)) , atlasWidth) /(float)atlasWidth;
-}
-float blockmesh_mapUVy(double v, int blockID,int textureWidth, int textureHeight, int atlasWidth, int atlasHeight){
-    return ((atlasHeight) - (((float)(blockID/(atlasWidth/textureWidth)) + (1-v))*(textureHeight))) / (float)atlasHeight;
-}
-
-
 static vec3_s ForwardFace[]  =  
 {
     vec3(-0.5f, -0.5f, -0.5f), // Bottom left
@@ -180,47 +172,6 @@ BlockMesh blockmesh_build_block(enum BlockID ID,int texture_atlas_position, int*
     result.faces[FaceOrder_Left]   =  facemesh_build(FaceOrder_Left,   LeftFace,     LeftFaceUV,    texture_atlas_position + face_texture_offsets[FaceOrder_Left]);
     result.faces[FaceOrder_Right]  =  facemesh_build(FaceOrder_Right,  RightFace,    RightFaceUV,   texture_atlas_position + face_texture_offsets[FaceOrder_Right]);
 
-    // float half_pixel_size_x = (1.0f/ATLAS_WIDTH)/ 4;
-    // float half_pixel_size_y = (1.0f/ATLAS_HEIGHT)/4;
-    // printf("%f\n", half_pixel_size_x);
-    //
-    // for(int i = 0; i < FaceOrder_End;i++){
-    //     for(int j = 0; j < VERTEXES_PER_FACE;j++){
-    //         result.faces[i].uvData[j].x = blockmesh_mapUVx(
-    //             result.faces[i].uvData[j].x,
-    //             result.texture_atlas_position + result.faces[i].texture_pos_offset,
-    //             TEXTURE_WIDTH,
-    //             TEXTURE_HEIGHT,
-    //             ATLAS_WIDTH,
-    //             ATLAS_HEIGHT
-    //         );
-    //         result.faces[i].uvData[j].y = blockmesh_mapUVy(
-    //             result.faces[i].uvData[j].y,
-    //             result.texture_atlas_position + result.faces[i].texture_pos_offset,
-    //             TEXTURE_WIDTH,
-    //             TEXTURE_HEIGHT,
-    //             ATLAS_WIDTH,
-    //             ATLAS_HEIGHT
-    //         );
-    //     }
-    //     result.faces[i].uvData[0].x += half_pixel_size_x;
-    //     result.faces[i].uvData[0].y += half_pixel_size_y;
-    //
-    //     result.faces[i].uvData[1].x += half_pixel_size_x;
-    //     result.faces[i].uvData[1].y -= half_pixel_size_y;
-    //
-    //     result.faces[i].uvData[2].x -=half_pixel_size_x;
-    //     result.faces[i].uvData[2].y +=half_pixel_size_y;
-    //
-    //     result.faces[i].uvData[3].x += half_pixel_size_x;
-    //     result.faces[i].uvData[3].y -= half_pixel_size_y;
-    //
-    //     result.faces[i].uvData[4].x -= half_pixel_size_x;
-    //     result.faces[i].uvData[4].y -= half_pixel_size_y;
-    //
-    //     result.faces[i].uvData[5].x -= half_pixel_size_x;
-    //     result.faces[i].uvData[5].y += half_pixel_size_y;
-    // }
     result.vertexCount = N_FACES * VERTEXES_PER_FACE * FLOATS_PER_VERTEX;
     result.indicesCount = FACE_INDICES_COUNT * N_FACES;
     return result;
