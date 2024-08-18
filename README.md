@@ -12,7 +12,7 @@ Its not much yet
 
  -  Infinite world generation
  -  Multithreading via pthreads 
- -  Decent performance I guess
+ -  Decent performance
  -  Block placing and destroying
 
 ## Wanna compile it?
@@ -26,15 +26,15 @@ Its not much yet
 
 
 ## Todo
-   - [ ] Fix stupid texture aliasing
    - [ ] Transparency
-   - [ ] Lighting and fancy shading
-   - [ ] Collisions and fps movement 
+   - [ ] Lighting and realistic shading
+   - [ ] Collisions and fps movement
+   - [ ] Non block entities 
 
 ## Libraries used
 
  - [GLFW3](https://www.glfw.org/)
  - [GLAD](https://glad.dav1d.de/)
- - [stb_image](https://github.com/nothings/stb) GOATED library
- - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) Another GOTAED library
+ - [stb_image](https://github.com/nothings/stb) Great library
+ - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite/blob/master/README.md) Another Great library
  - [cutility](https://github.com/AlexGoodlife/C-utility) my library :)
