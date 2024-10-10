@@ -16,7 +16,8 @@ Its not much yet
  -  Block placing and destroying
 
 ## Building
-    You need CMake to build this project and you can run the following commands
+You need CMake to build this project and you can run the following commands
+
 ```
 git clone https://github.com/AlexGoodlife/bv-craft.git
 cd bv-craft
