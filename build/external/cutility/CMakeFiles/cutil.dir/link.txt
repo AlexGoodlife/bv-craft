@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcutil.a CMakeFiles/cutil.dir/src/list.c.o CMakeFiles/cutil.dir/src/queue.c.o
-/usr/bin/ranlib libcutil.a
