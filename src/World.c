@@ -12,7 +12,7 @@
 #define NUMBER_OF_THREADS 8
 #define TICK_THROTTLE 4
 
-#define MULTITHREAD 1
+#define MULTITHREAD 0
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
   float x_offset = (width/2)*CHUNK_WIDTH + CHUNK_WIDTH/2;
@@ -318,11 +318,7 @@ void world_check_center(World* world, vec3_s pos){
   // vec3_s new_center = vec3_sub(world->bottom_left_offset, vec3(new_index_offset.x*CHUNK_WIDTH, 0 , new_index_offset.y*CHUNK_DEPTH));
   uint32_t new_index_pos = INDEX2D(new_index.x, new_index.y, world->map_width);
   if(new_index_pos != ((world->map_height * world->map_width) / 2)){
-    // LOG_VEC3(new_center);
-    // LOG("INDEX: %d %d\n", new_index.x, new_index.y);
-    // LOG("%d %d\n", new_index_offset.x, new_index_offset.y);
     world_update_chunks(world, world->center_coord, new_index);
-    // world_update_chunks(world, pos, new_index);
   }
 
 }

@@ -1,6 +1,6 @@
 #ifndef BV_STATE_H
 #define BV_STATE_H
-#include "../glad/glad.h"
+#include <glad/glad.h>
 #include "Block.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -17,6 +17,7 @@
 #define SCALING_FACTOR vec3(0.5f, 0.5f, 0.5f)
 
 #define N_THREADS 8
+#define MSAA_SAMPLES 16
 
 #define TEXTURE_WIDTH 16
 #define TEXTURE_HEIGHT 16

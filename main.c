@@ -14,8 +14,8 @@
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #define WORLD_WIDTH 55
 #define WORLD_HEIGHT 55
@@ -30,7 +30,8 @@ void run() {
   assert(WORLD_HEIGHT % 2 != 0);
   assert(WORLD_WIDTH % 2 != 0);
 
-  GLuint Atlas_texture = loadTexture("resources/big_ass_atlas.png");
+  GLuint Atlas_texture = loadTextureArray("resources/big_ass_atlas.PNG");
+  glCheckError();
 
   vec3_s center = vec3(0,0,0);
 
@@ -38,6 +39,7 @@ void run() {
 
   shader_use(shader);
   shader_setInt(shader, "Atlas", 0);
+  glCheckError();
 
   mat4_s projection = init_mat4_id;
   projection = linealg_perspective((float)state->windowWidth /(float)state->windowHeight,radians(state->camera->fov), 0.1f, 1000.0f);
@@ -55,7 +57,7 @@ void run() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Atlas_texture);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, Atlas_texture);
 
     if((currentFrame - tickTime)*1000 >= 50){ // 20 ticks per second 1000/ticks
       tickTime = currentFrame;
@@ -78,5 +80,5 @@ int main(int argc, char **argv) {
 
   run();
 
-  return 0;
+ return 0;
 }

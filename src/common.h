@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../glad/glad.h"
+#include <glad/glad.h>
+#include <errno.h>
 #include "math/vec.h"
 #include <string.h>
 

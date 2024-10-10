@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "thread.h"
+#include "common.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -29,6 +30,10 @@ Threadpool* threadpool_init(int n_threads){
 }
 
 void threadpool_destroy(Threadpool** pool){
+  if (*pool == NULL) {
+    ERROR("Threadpool pointer is null, memory leaked");
+    return;
+  }
   (*pool)->quit = true;
   pthread_mutex_lock(&(*pool)->lock);
   pthread_cond_broadcast(&(*pool)->cond);

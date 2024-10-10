@@ -15,11 +15,6 @@
 
 #define FLOATS_PER_CUBE VERTEXES_PER_FACE*N_FACES*FLOATS_PER_VERTEX
 
-#define ATLAS_WIDTH 512
-#define ATLAS_HEIGHT 256
-#define TEXTURE_WIDTH 16
-#define TEXTURE_HEIGHT 16
-
 enum FaceOrder{
     FaceOrder_Miss = -1,
     FaceOrder_Front,

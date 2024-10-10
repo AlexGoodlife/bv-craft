@@ -1,7 +1,7 @@
 #ifndef BV_CHUNK_H
 #define BV_CHUNK_H
 
-#include "../glad/glad.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Block.h"

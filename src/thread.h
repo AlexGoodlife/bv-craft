@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 #include <stdbool.h>
-#include "../lib/cutility/include/queue.h"
+#include <queue.h>
 
 
 typedef struct {
