@@ -15,15 +15,17 @@ Its not much yet
  -  Decent performance
  -  Block placing and destroying
 
-## Wanna compile it?
-   Download glfw3 and the source code and compile.
-
-   Link with the following libraries
-   ### On Windows
-   > -lgdi32 -lopengl32 -lglfw3 
-   ### On Linux
-   > -lglfw -lGLU -lGL -lpthread -lXrandr -lm -lXxf86vm -lXi -lXinerama -lX11 -lrt -ldl 
-
+## Building
+    You need CMake to build this project and you can run the following commands
+```
+git clone https://github.com/AlexGoodlife/bv-craft.git
+cd bv-craft
+mkdir build
+cd build
+cmake ..
+make
+```
+On windows you don't have mkdir but you can use the equivalent
 
 ## Todo
    - [ ] Transparency
