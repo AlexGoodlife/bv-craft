@@ -5,6 +5,7 @@
 #include "math/vec.h"
 #include <GLFW/glfw3.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -80,8 +81,7 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   glEnable(GL_MULTISAMPLE);
  // glDepthMask(GL_FALSE);
   // glDisable(GL_MULTISAMPLE);
-
-  shader = shader_load("src/shaders/tex_array.vert", "src/shaders/tex_array.frag");
+  shader = shader_load("./shaders/tex_array.vert", "./shaders/tex_array.frag");
   if (errno) {
     ERROR("FAILED TO LOAD FILE");
     return false;
@@ -112,8 +112,8 @@ int init(const char *windowTitle, int windowWidth, int windowHeight) {
   return true;
 }
 
-void close() {
-  // threadpool_destroy(&state->thread_pool);
+void cleanup() {
+  threadpool_destroy(&state->thread_pool);
   free(state->camera);
   free(state);
   fclose(logFile);

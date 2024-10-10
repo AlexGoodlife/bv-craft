@@ -47,7 +47,7 @@ extern State *state;
 extern float deltaTime;
 
 int init(const char *windowTitle, int windowWidth, int windowHeight);
-void close();
+void cleanup();
 void processInput(float deltaTime);
 void displayFPS(float deltaTime, float lastFrame);
 GLuint loadTexture(const char *path);

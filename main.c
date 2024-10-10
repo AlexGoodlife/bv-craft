@@ -30,7 +30,7 @@ void run() {
   assert(WORLD_HEIGHT % 2 != 0);
   assert(WORLD_WIDTH % 2 != 0);
 
-  GLuint Atlas_texture = loadTextureArray("resources/big_ass_atlas.PNG");
+  GLuint Atlas_texture = loadTextureArray("resources/big_ass_atlas.png");
   glCheckError();
 
   vec3_s center = vec3(0,0,0);
@@ -71,7 +71,7 @@ void run() {
   world_destroy(world);
   free(test_map);
   shader_destroy(shader);
-  close();
+  cleanup();
 }
 
 int main(int argc, char **argv) {

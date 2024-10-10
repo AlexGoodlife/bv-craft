@@ -10,9 +10,9 @@
 #include <string.h> //memcpy
                     
 #define NUMBER_OF_THREADS 8
-#define TICK_THROTTLE 4
+#define TICK_THROTTLE 8
 
-#define MULTITHREAD 0
+#define MULTITHREAD 1
 
 vec3_s calculate_bottom_left(vec3_s pos, uint32_t width, uint32_t height){
   float x_offset = (width/2)*CHUNK_WIDTH + CHUNK_WIDTH/2;
