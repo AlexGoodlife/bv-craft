@@ -1,0 +1,2 @@
+/usr/bin/ar qc libbv.a CMakeFiles/bv.dir/World.c.o CMakeFiles/bv.dir/thread.c.o CMakeFiles/bv.dir/worldgen.c.o CMakeFiles/bv.dir/Chunk.c.o CMakeFiles/bv.dir/Block.c.o CMakeFiles/bv.dir/Shader.c.o CMakeFiles/bv.dir/state.c.o CMakeFiles/bv.dir/Camera.c.o
+/usr/bin/ranlib libbv.a

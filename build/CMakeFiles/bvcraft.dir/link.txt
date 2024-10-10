@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/bvcraft.dir/main.c.o -o bvcraft  external/cutility/libcutil.a src/libbv.a _deps/glfw-build/src/libglfw3.a external/glad/libglad.a external/cutility/libcutil.a /usr/lib/librt.a -lm -ldl
